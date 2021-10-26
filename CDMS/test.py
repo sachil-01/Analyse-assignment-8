@@ -5,7 +5,7 @@ from datetime import datetime
 
 letters = string.ascii_lowercase + string.ascii_uppercase
 
-print(set(string.punctuation))
+# print(set(string.punctuation))
 
 # while True:
 #     word = input('naam: ')
@@ -38,4 +38,20 @@ print(set(string.punctuation))
 
 # print(validatePassword())
 
-print(datetime.now())
+# print(datetime.now())
+  
+  
+def validateEmail():
+        pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        while True:
+            eMail = input('Please enter email address: ')
+            
+            if(re.fullmatch(pattern, eMail)):
+                print("Email set to " + eMail)
+                return eMail
+    
+            else:
+                print("Invalid Email")
+
+
+validateEmail()

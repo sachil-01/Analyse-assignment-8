@@ -93,7 +93,7 @@ class db:
 
         loggedin_user = self.cur.fetchone()
         if not loggedin_user:  # An empty result evaluates to False.
-            print("Login failed")
+            print("Invalid username or password.")
         else:
             self.loggedin = 1
             self.loggedin_user = username
@@ -148,8 +148,7 @@ class db:
                 print('User ' + str(userCount) + ' = ' + row[0] + ' | Role: advisor')
             userCount += 1
     
-    def add_new_client(self):
-        # self.not_implemented(self.add_new_client)        
+    def add_new_client(self):       
         
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
@@ -176,8 +175,7 @@ class db:
                 break
         city = CityNames[int(chosenNumber)-1][1]
         print('City = ' + str(city))
-        eMail = input('Please enter email address: ')
-        print('Email is ' + eMail)
+        eMail = validateEmail()
 
         phoneNumber = validatePhone()
         print('Phone number is ' + str(phoneNumber))
@@ -193,36 +191,94 @@ class db:
             print(e)
 
 
-
-
-
-
-    
     def add_new_user(self):
         #system_admin -> add advisor
-        user_name = validateUser()
-        passw = validatePassword()
-        firstname = input('enter firstname: ')
-        lastname = input('enter lastname: ')
-        isAdvisor = 1
-        isSysadmin = 0
-        timestamp = datetime.now()
+        while True:
+            if(user_type == 'Admin'):
+                print('[1] advisor\n[2] system admin\n[3] admin\n')
+                print('Which user do you want to make?')
+                number = input()
+                if(number in ['1','2','3']):
+                    add_new_users(self,number)
+                    return
+                else:
+                    print('Enter a valid number.')
+    
+            elif(user_type == 'system_admin'):
+                print('[1] advisor\n')
+                print('Which user do you want to make?')
+                number = input()
+                if(number in ['1']):
+                    add_new_users(self,'1')
+                    return
+                else:
+                    print('Enter a valid number.\n')
 
-        testtuple = (user_name,passw,firstname,lastname,isAdvisor,isSysadmin,isAdvisor,timestamp)
 
+    def delete_client_record(self):
         self.conn = sqlite3.connect(self.db_name) 
-        self.cur = self.conn.cursor()
+        self.cur = self.conn.cursor()      
+        client = searchClient(self)
 
-        try:
-            self.cur.execute("INSERT INTO users(username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES (?,?,?,?,?,?,?,?)", testtuple)
-            self.conn.commit()
-            print('User sucessfully added.')
-
-        except Exception as e:
-            print(e)
+        print('[1] fullname\n[2] address\n[3] zipcode\n[4] city\n[5] email\n[6] phone number\n')
+        print('Which record do you want to delete? Please choose 1-5')
+        
+        empty = ""
+        while True:
+            record = input('number: ')
+            if(record in ['1','2','3','4','5','6']):
+                break
+            else:
+                print('Please enter a valid number')
+        if(record == '1'):
+            try:
+                self.cur.execute("UPDATE client SET fullname = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('fullname record has been deleted.')
+            except Exception as e:
+                print(e)
+            return
+        elif(record == '2'):
+            try:
+                self.cur.execute("UPDATE client SET address = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('address record has been deleted.')
+            except Exception as e:
+                print(e)
+            return
+        elif(record =='3'):
+            try:
+                self.cur.execute("UPDATE client SET zipcode = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('zipcode record has been deleted.')
+            except Exception as e:
+                print(e)            
+            return
+        elif(record =='4'):
+            try:
+                self.cur.execute("UPDATE client SET city = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('city record has been deleted.')
+            except Exception as e:
+                print(e)        
+        elif(record == '5'):
+            try:
+                self.cur.execute("UPDATE client SET email = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('email record has been deleted.')
+            except Exception as e:
+                print(e)               
+            return
+        else:
+            try:
+                self.cur.execute("UPDATE client SET phone_number = ? WHERE fullname = ?", (empty, client))
+                self.conn.commit()
+                print('phone number record has been deleted.')
+            except Exception as e:
+                print(e) 
+            return
     
     def deleteAdvisor(self):
-        
         user_name = searchAdvisor(self)
         try:
             self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
@@ -231,19 +287,47 @@ class db:
 
         except Exception as e:
             print(e)
-
         return
-
-        
 
     def make_a_user_admin(self):
         self.not_implemented(self.make_a_user_admin)       
 
     def delete_client(self):
-        self.not_implemented(self.delete_client)
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+        print('--Deleting a client---\n')
+        client = searchClient(self)
+        try:
+            self.cur.execute("DELETE FROM client WHERE fullname = ?", (client, ))
+            self.conn.commit()
+            print('Client sucessfully Deleted.')
+
+        except Exception as e:
+            print(e)
+
+
 
     def delete_user(self):
-        self.not_implemented(self.delete_user)
+        while True:
+            if(user_type == 'Admin'):
+                print('Which user do you want to delete?')
+                print('[1] admin\n[2] system admin\n[3] advisor\n')
+                number = input('Number: ')
+                if(number not in ['1','2','3']):
+                    print('Please enter a number between 1-3')
+                else:
+                    break
+        
+        if(number == '1'):
+            deleteUsers(self, number)
+            return
+        elif(number == '2'):
+            deleteUsers(self, number)
+            return
+        else:
+            deleteAdvisor(self)
+
+
 
     def change_password(self):
         # self.not_implemented(self.change_password)
@@ -263,8 +347,6 @@ class db:
     def update_client_info(self):
         
         print("which client do you want to update?")
-        # self.conn = sqlite3.connect(self.db_name) 
-        # self.cur = self.conn.cursor()
 
         client = searchClient(self)
         print('')
@@ -278,7 +360,7 @@ class db:
             print(e)
         print('')
         while True:
-            chosenNumber = input('Please enter which info you want to update 1-5: ')
+            chosenNumber = input('Please enter which info you want to update 1-6: ')
             if(chosenNumber in ['1','2','3','4','5','6']):
                 break
             else:
@@ -339,12 +421,30 @@ class db:
 
         except Exception as e:
                 print(e)
-        return        
+        return
+
+    def reset_admin_password(self):
+
+        admin_name = searchAdmin(self)
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+        temp_psw = 'P@ssw0rd100'
+
+        print("Admin password will be set to temporary password P@ssw0rd100")
+
+        try:
+            self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (temp_psw, admin_name))
+            self.conn.commit()
+            print('password updated successfully')
+
+        except Exception as e:
+                print(e)
+        return   
 
     def update_advisor_info(self):
         
         print('Which advisor do you want to update?')
-        advisor_name = searchAdvisor(self)
+        name = searchAdvisor(self)
 
         columns = ['username','password','firstname','lastname']
 
@@ -364,27 +464,47 @@ class db:
                 print('Please enter a valid number')
         
         if(chosenNumber == '1'):
-            changeUsername(self, advisor_name)
-        elif(chosenNumber == '2', advisor_name):
-            changePassword(self)
+            changeUsername(self, name)
+        elif(chosenNumber == '2'):
+            changePassword(self, name)
         elif(chosenNumber == '3'):
-            changeFirstname(self)
+            changeFirstname(self, name)
         else:
-            changeLastname(self)
+            changeLastname(self, name)
+
+    def update_admin_info(self):
+        
+        print('Which admin do you want to update?')
+        name = searchAdmin(self)
+
+        columns = ['username','password','firstname','lastname']
+
+        count =1
+        try:
+            for i in columns:
+                print( '[' + str(count) + '] ' + i)
+                count += 1
+        except Exception as e:
+            print(e)
+        print('')
+        while True:
+            chosenNumber = input('Please enter which info you want to update 1-4: ')
+            if(chosenNumber in ['1','2','3','4']):
+                break
+            else:
+                print('Please enter a valid number')
+        
+        if(chosenNumber == '1'):
+            changeUsername(self, name)
+        elif(chosenNumber == '2'):
+            changePassword(self, name)
+        elif(chosenNumber == '3'):
+            changeFirstname(self, name)
+        else:
+            changeLastname(self, name)
 
 
         
-            
-
-
-
-
-
-
-
-
-
-
 
     def logout(self):
         self.loggedin = 0
@@ -404,7 +524,7 @@ client = db(company_db_name, client_tb_name, users_tb_name)
 main_menu = [[1, 'login', client.login ], [0, 'Exit', client.close]]
 db_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all users', client.show_all_users], \
             [3, 'add new client', client.add_new_client], [4, 'add new user', client.add_new_user], \
-            [5, 'make a user "admin"', client.make_a_user_admin], \
-            [6, 'delete a client', client.delete_client], [7, 'delete a advisor', client.deleteAdvisor], \
-            [8, 'change password', client.change_password],[9, 'reset advisor password', client.reset_advisor_password], [10, 'update client info', client.update_client_info], \
-            [11,'update advisor info', client.update_advisor_info],[12, 'search client info',client.get_client_info], [0, 'logout', client.logout]]
+            [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
+            [7, 'delete a client', client.delete_client], [8, 'delete a advisor', client.deleteAdvisor],[9,'delete client record', client.delete_client_record], \
+            [10, 'change password', client.change_password],[11, 'reset advisor password', client.reset_advisor_password],[12, 'reset admin password', client.reset_admin_password],[13, 'update client info', client.update_client_info], \
+            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info], [0, 'logout', client.logout]]

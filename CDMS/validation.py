@@ -1,6 +1,7 @@
 import re
 import string
 import sqlite3
+from datetime import datetime
 
 
 # make a pattern
@@ -35,7 +36,7 @@ def validateZip():
     while True:
         pattern = "^[0-9]{4}[A-Z]{2}$"
 
-        zipcode = input("Please Enter zipcode: ")
+        zipcode = input("Please Enter zipcode in format (DDDDXX) with capital letters: ")
         state = bool(re.match(pattern, zipcode))
         if(state):
             return zipcode
@@ -60,7 +61,7 @@ def validatePassword():
         
         while True:  
             password = input("password = : ")
-            if(len(password) <= 8 or len(password) > 30):
+            if(len(password) < 8 or len(password) > 30):
                 print('Username MUST be between 8 and 30 characters')
             else: 
                 break
@@ -71,6 +72,20 @@ def validatePassword():
             else:
                 print('Must have at least 1 special characters, lowercase letter, uppercase letter and digit')
                 break
+
+def validateEmail():
+        pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        while True:
+            eMail = input('Please enter email address: ')
+            
+            if(re.fullmatch(pattern, eMail)):
+                print("Email set to " + eMail)
+                return eMail
+    
+            else:
+                print("Invalid Email")
+        
+        
 
 def searchClient(self):
         while True:
@@ -118,6 +133,35 @@ def searchAdvisor(self):
             except Exception as e:
                 print(e)
 
+def searchAdmin(self):
+        while True:
+            try:
+                admin = 1
+                user_name = input('Please enter admins username: ')
+                self.cur.execute("SELECT * FROM users WHERE username = ? AND admin = ?", (user_name, admin))
+                data=self.cur.fetchall()
+                if len(data)==0:
+                    print('There is no admin named %s'%user_name)
+                else:
+                    print('user found\n')
+                    return user_name
+            except Exception as e:
+                print(e)
+
+def searchSysAdmin(self):
+        while True:
+            try:
+                sys_admin = 1
+                user_name = input('Please enter system admin username: ')
+                self.cur.execute("SELECT * FROM users WHERE username = ? AND system_admin = ?", (user_name, sys_admin))
+                data=self.cur.fetchall()
+                if len(data)==0:
+                    print('There is no system admin named %s'%user_name)
+                else:
+                    print('user found\n')
+                    return user_name
+            except Exception as e:
+                print(e)
 
 
 def changeFullname(self, client):
@@ -206,7 +250,7 @@ def changeCity(self, client):
 
 def changeEmail(self, client):
     
-    email = input('Please enter new email for client: ')
+    email = validateEmail()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
@@ -238,7 +282,7 @@ def changePhone(self, client):
 
 def changeUsername(self, advisor_name):
     
-    print('Please enter a new username for advisor ' + advisor_name)
+    print('Please enter a new username for ' + advisor_name)
     user_name = validateUser()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
@@ -252,6 +296,65 @@ def changeUsername(self, advisor_name):
             print(e)
 
     return
+
+def add_new_users(self,number):
+        user_name = validateUser()
+        passw = validatePassword()
+        if(number =='1'):
+            while True:
+                firstname = input('enter firstname: ')
+                if(firstname == ""):
+                    print('firstname cannot be empty! ')
+                else:
+                    break
+            while True:
+                lastname = input('enter lastname: ')
+                if(lastname == ""):
+                    print('lastname cannot be empty! ')
+                else:
+                    break
+            isAdvisor = 1
+            isAdmin = 0
+            isSysadmin = 0
+
+        elif(number=='2'):
+            while True:
+                firstname = input('enter firstname: ')
+                if(firstname == ""):
+                    print('firstname cannot be empty! ')
+                else:
+                    break
+            while True:
+                lastname = input('enter lastname: ')
+                if(lastname == ""):
+                    print('lastname cannot be empty! ')
+                else:
+                    break
+            isAdvisor = 0
+            isAdmin = 0
+            isSysadmin = 1
+        else:
+            firstname = input('enter firstname [OPTIONAL]:  ')
+            lastname = input('enter lastname: [OPTIONAL]: ')
+            isAdvisor = 0
+            isAdmin = 1
+            isSysadmin = 0
+        timestamp = datetime.now()
+
+        testtuple = (user_name,passw,firstname,lastname,isAdmin,isSysadmin,isAdvisor,timestamp)
+
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+
+        try:
+            self.cur.execute("INSERT INTO users(username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES (?,?,?,?,?,?,?,?)", testtuple)
+            self.conn.commit()
+            print('User sucessfully added.')
+
+        except Exception as e:
+            print(e)
+        return
+
 
 def changePassword(self, advisor_name):
     print('Please enter a new password for ' + advisor_name)
@@ -271,12 +374,69 @@ def changePassword(self, advisor_name):
     return
 
 def changeFirstname(self, advisor_name):
+    print('Enter a new firstname for '+ advisor_name)
+    newName = input('firstname: ')
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+    try:
+        self.cur.execute("UPDATE users SET firstname = ? WHERE username = ?", (newName, advisor_name))
+        self.conn.commit()
+        print('Firstname updated successfully')
+
+    except Exception as e:
+            print(e)
     return
 
 def changeLastname(self, advisor_name):
+    print('Enter a new lastname for '+ advisor_name)
+    newLastName = input('Lastname: ')
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+    try:
+        self.cur.execute("UPDATE users SET lastname = ? WHERE username = ?", (newLastName, advisor_name))
+        self.conn.commit()
+        print('Lastname updated successfully')
+
+    except Exception as e:
+            print(e)
     return
 
+def deleteUsers(self, number):
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+    if(number=='1'):
+        admin = searchAdmin(self)
+        try:
+            self.cur.execute("DELETE FROM users WHERE username = ?", (admin, ))
+            self.conn.commit()
+            print('User sucessfully Deleted.')
 
+        except Exception as e:
+            print(e)
+        return
+    elif(number=='2'):
+        sys_admin= searchSysAdmin(self)
+        try:
+            self.cur.execute("DELETE FROM users WHERE username = ?", (sys_admin, ))
+            self.conn.commit()
+            print('User sucessfully Deleted.')
+
+        except Exception as e:
+            print(e)
+        return
+
+
+
+def deleteAdvisor(self):
+    user_name = searchAdvisor(self)
+    try:
+        self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
+        self.conn.commit()
+        print('User sucessfully Deleted.')
+
+    except Exception as e:
+        print(e)
+    return
 
 
 
