@@ -38,20 +38,20 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 
 # print(validatePassword())
 
-# print(datetime.now())
+# print(datetime.day())
   
   
-def validateEmail():
-        pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-        while True:
-            eMail = input('Please enter email address: ')
+# def validateEmail():
+#         pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+#         while True:
+#             eMail = input('Please enter email address: ')
             
-            if(re.fullmatch(pattern, eMail)):
-                print("Email set to " + eMail)
-                return eMail
+#             if(re.fullmatch(pattern, eMail)):
+#                 print("Email set to " + eMail)
+#                 return eMail
     
-            else:
-                print("Invalid Email")
+#             else:
+#                 print("Invalid Email")
 
 
-validateEmail()
+# validateEmail()

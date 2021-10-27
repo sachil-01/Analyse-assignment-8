@@ -1,4 +1,5 @@
 import sqlite3
+import io
 from ui import *
 from termcolor import colored
 from validation import *
@@ -84,7 +85,7 @@ class db:
         # {"username": username, "password": password})
         
         try:
-            self.cur.execute("SELECT * from users WHERE username = ? AND password = ?", (username, password))
+            self.cur.execute("SELECT * from users WHERE lower(username) = ? AND password = ?", (username, password))
         
         except OperationalError as ErrorMessage:
             # print(ErrorMessage)
@@ -235,7 +236,7 @@ class db:
                 print('Please enter a valid number')
         if(record == '1'):
             try:
-                self.cur.execute("UPDATE client SET fullname = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('fullname record has been deleted.')
             except Exception as e:
@@ -243,7 +244,7 @@ class db:
             return
         elif(record == '2'):
             try:
-                self.cur.execute("UPDATE client SET address = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('address record has been deleted.')
             except Exception as e:
@@ -251,7 +252,7 @@ class db:
             return
         elif(record =='3'):
             try:
-                self.cur.execute("UPDATE client SET zipcode = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('zipcode record has been deleted.')
             except Exception as e:
@@ -259,14 +260,14 @@ class db:
             return
         elif(record =='4'):
             try:
-                self.cur.execute("UPDATE client SET city = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('city record has been deleted.')
             except Exception as e:
                 print(e)        
         elif(record == '5'):
             try:
-                self.cur.execute("UPDATE client SET email = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('email record has been deleted.')
             except Exception as e:
@@ -274,7 +275,7 @@ class db:
             return
         else:
             try:
-                self.cur.execute("UPDATE client SET phone_number = ? WHERE fullname = ?", (empty, client))
+                self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('phone number record has been deleted.')
             except Exception as e:
@@ -284,7 +285,7 @@ class db:
     def deleteAdvisor(self):
         user_name = searchAdvisor(self)
         try:
-            self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
+            self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (user_name, ))
             self.conn.commit()
             print('User sucessfully Deleted.')
 
@@ -310,17 +311,13 @@ class db:
         return
 
 
-
-
-
-
     def delete_client(self):
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
         print('--Deleting a client---\n')
         client = searchClient(self)
         try:
-            self.cur.execute("DELETE FROM client WHERE fullname = ?", (client, ))
+            self.cur.execute("DELETE FROM client WHERE lower(fullname) = ?", (client, ))
             self.conn.commit()
             print('Client sucessfully Deleted.')
 
@@ -411,7 +408,7 @@ class db:
             try:
 
                 count = 0
-                for row in self.cur.execute("SELECT * FROM client WHERE fullname =?", (client,)):
+                for row in self.cur.execute("SELECT * FROM client WHERE lower(fullname) =?", (client,)):
                     info = row
             except Exception as e:
                 print(e)
@@ -437,7 +434,7 @@ class db:
         print("Advisor password will be set to temporary password Welkom@01")
 
         try:
-            self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (temp_psw, advisor_name))
+            self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (temp_psw, advisor_name))
             self.conn.commit()
             print('password updated successfully')
 
@@ -524,9 +521,24 @@ class db:
             changeFirstname(self, name)
         else:
             changeLastname(self, name)
-
-
-        
+    
+    
+    
+    def create_db_backup(self):
+        self.conn = sqlite3.connect(self.db_name) 
+        try:
+            with io.open('DB_backup.sql', 'w') as p: 
+            
+                for line in self.conn.iterdump(): 
+                
+                    p.write('%s\n' % line)
+            
+            print(' Backup has been created!')
+            print(' Data Saved as DB_backup.sql')
+            zip_files()
+            self.conn.close()
+        except Exception as e:
+            print(e)
 
     def logout(self):
         self.loggedin = 0
@@ -549,7 +561,7 @@ db_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all user
             [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
             [7, 'delete a client', client.delete_client], [8, 'delete a advisor', client.deleteAdvisor],[9,'delete client record', client.delete_client_record], \
             [10, 'change password', client.change_password],[11, 'reset advisor password', client.reset_advisor_password],[12, 'reset admin password', client.reset_admin_password],[13, 'update client info', client.update_client_info], \
-            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info], [0, 'logout', client.logout]]
+            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info],[17,'Backup database', client.create_db_backup], [0, 'logout', client.logout]]
 
 
 advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
@@ -559,5 +571,5 @@ advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change p
 sysadmin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
             [3, 'add new client', client.add_new_client],[4, 'add new advisor', client.add_new_user], [5, 'search client info', client.get_client_info], \
             [6, 'update client info', client.update_client_info],[7,'update advisor info', client.update_advisor_info],[8, 'reset advisor password', client.reset_advisor_password],
-            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record], [0, 'logout', client.logout]]
+            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'Backup database', client.create_db_backup], [0, 'logout', client.logout]]
 

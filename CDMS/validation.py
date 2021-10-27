@@ -2,17 +2,32 @@ import re
 import string
 import sqlite3
 from datetime import datetime
+import zipfile
 
 
 # make a pattern
 
+def checkUserExist(self):
+        while True:
+            try:
+                username = input('Enter username: ').lower()
+                self.cur.execute("SELECT lower(username) FROM users WHERE lower(username) = ?", (username,))
+                exists = self.cur.fetchall()
+                if exists:
+                    print("Username already chosen...")
+                else:
+                    return username
+            except Exception as e:
+                print(e)   
+        
+                return
 
-def validateUser():
+def validateUser(self):
     pattern = "^[A-Za-z0-9_'.-]*$"
     while True:
         while True:  
             # input
-            username = input("username = : ")
+            username = checkUserExist(self)
             if(len(username) < 5 or len(username) > 20):
                 print('Username MUST be between 5 and 20 characters')
             else: 
@@ -90,14 +105,14 @@ def validateEmail():
 def searchClient(self):
         while True:
             try:
-                client = input('Please enter full name of client: ')
-                self.cur.execute("SELECT * FROM client WHERE fullname = ?", (client,))
+                client = input('Please enter full name of client: ').lower()
+                self.cur.execute("SELECT * FROM client WHERE lower(fullname) = ?", (client,))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('There is no client named %s'%client)
                 else:
                     print('client found\n')
-                    for row in self.cur.execute("SELECT fullname, address, zipcode, city, email, phone_number FROM client WHERE fullname = ?", (client,)):
+                    for row in self.cur.execute("SELECT fullname, address, zipcode, city, email, phone_number FROM client WHERE lower(fullname) = ?", (client,)):
                         print(row)
                         return client
                     break
@@ -107,8 +122,8 @@ def searchClient(self):
 def searchUser(self):
         while True:
             try:
-                user_name = input('Please enter username : ')
-                self.cur.execute("SELECT * FROM users WHERE username = ?", (user_name,))
+                user_name = input('Please enter username : ').lower()
+                self.cur.execute("SELECT * FROM users WHERE lower(username) = ?", (user_name,))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('There is no user named %s'%user_name)
@@ -122,8 +137,8 @@ def searchAdvisor(self):
         while True:
             try:
                 advisor = 1
-                user_name = input('Please enter advisor username: ')
-                self.cur.execute("SELECT * FROM users WHERE username = ? AND advisor = ?", (user_name, advisor))
+                user_name = input('Please enter advisor username: ').lower()
+                self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND advisor = ?", (user_name, advisor))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('There is no advisor named %s'%user_name)
@@ -137,8 +152,8 @@ def searchAdmin(self):
         while True:
             try:
                 admin = 1
-                user_name = input('Please enter admins username: ')
-                self.cur.execute("SELECT * FROM users WHERE username = ? AND admin = ?", (user_name, admin))
+                user_name = input('Please enter admins username: ').lower()
+                self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND admin = ?", (user_name, admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('There is no admin named %s'%user_name)
@@ -152,8 +167,8 @@ def searchSysAdmin(self):
         while True:
             try:
                 sys_admin = 1
-                user_name = input('Please enter system admin username: ')
-                self.cur.execute("SELECT * FROM users WHERE username = ? AND system_admin = ?", (user_name, sys_admin))
+                user_name = input('Please enter system admin username: ').lower()
+                self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND system_admin = ?", (user_name, sys_admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('There is no system admin named %s'%user_name)
@@ -171,7 +186,7 @@ def changeFullname(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET fullname = ? WHERE fullname = ?", (newName, client))
+        self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (newName, client))
         self.conn.commit()
         print('Fullname updated successfully')
 
@@ -187,7 +202,7 @@ def changeAddress(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET address = ? WHERE fullname = ?", (newAddress, client))
+        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (newAddress, client))
         self.conn.commit()
         print('Address updated successfully')
 
@@ -203,7 +218,7 @@ def changeZip(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET zipcode = ? WHERE fullname = ?", (newZip, client))
+        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (newZip, client))
         self.conn.commit()
         print('Zipcode updated successfully')
 
@@ -227,7 +242,7 @@ def changeCity(self, client):
 
             print('')
             chosenNumber = input('Please choose a city from 1-10: ')
-            if int(chosenNumber) not in [1,2,3,4,5,6,7,8,9,10]:
+            if (chosenNumber not in ['1','2','3','4','5','6','7','8','9','10']):
                 print('Invalid number\n')
             else:
                 break
@@ -237,7 +252,7 @@ def changeCity(self, client):
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE client SET city = ? WHERE fullname = ?", (city, client))
+            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (city, client))
             self.conn.commit()
             print('City updated successfully')
 
@@ -255,7 +270,7 @@ def changeEmail(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET email = ? WHERE fullname = ?", (email, client))
+        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (email, client))
         self.conn.commit()
         print('email updated successfully')
 
@@ -271,7 +286,7 @@ def changePhone(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET phone_number = ? WHERE fullname = ?", (newPhone, client))
+        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (newPhone, client))
         self.conn.commit()
         print('phone number updated successfully')
 
@@ -288,7 +303,7 @@ def changeUsername(self, advisor_name):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE users SET username = ? WHERE username = ?", (user_name, advisor_name))
+        self.cur.execute("UPDATE users SET username = ? WHERE lower(username) = ?", (user_name, advisor_name))
         self.conn.commit()
         print('Username updated successfully')
 
@@ -298,7 +313,7 @@ def changeUsername(self, advisor_name):
     return
 
 def add_new_users(self,number):
-        user_name = validateUser()
+        user_name = validateUser(self)
         passw = validatePassword()
         if(number =='1'):
             while True:
@@ -363,7 +378,7 @@ def changePassword(self, advisor_name):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (new_pass, advisor_name))
+        self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (new_pass, advisor_name))
         self.conn.commit()
         print('Password updated successfully')
 
@@ -377,7 +392,7 @@ def changeFirstname(self, advisor_name):
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
-        self.cur.execute("UPDATE users SET firstname = ? WHERE username = ?", (newName, advisor_name))
+        self.cur.execute("UPDATE users SET firstname = ? WHERE lower(username) = ?", (newName, advisor_name))
         self.conn.commit()
         print('Firstname updated successfully')
 
@@ -391,7 +406,7 @@ def changeLastname(self, advisor_name):
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
-        self.cur.execute("UPDATE users SET lastname = ? WHERE username = ?", (newLastName, advisor_name))
+        self.cur.execute("UPDATE users SET lastname = ? WHERE lower(username) = ?", (newLastName, advisor_name))
         self.conn.commit()
         print('Lastname updated successfully')
 
@@ -403,21 +418,21 @@ def deleteUsers(self, number):
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     if(number=='1'):
-        admin = searchAdmin(self)
+        admin = searchAdmin(self).lower()
         try:
-            self.cur.execute("DELETE FROM users WHERE username = ?", (admin, ))
+            self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (admin, ))
             self.conn.commit()
-            print('User sucessfully Deleted.')
+            print('User successfully Deleted.')
 
         except Exception as e:
             print(e)
         return
     elif(number=='2'):
-        sys_admin= searchSysAdmin(self)
+        sys_admin = searchSysAdmin(self).lower()
         try:
-            self.cur.execute("DELETE FROM users WHERE username = ?", (sys_admin, ))
+            self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (sys_admin, ))
             self.conn.commit()
-            print('User sucessfully Deleted.')
+            print('User successfully Deleted.')
 
         except Exception as e:
             print(e)
@@ -435,6 +450,19 @@ def deleteAdvisor(self):
     except Exception as e:
         print(e)
     return
+
+def zip_files():
+    list_files = ['DB_backup.sql']
+        
+    try:
+        with zipfile.ZipFile('backup.zip', 'w') as zipF:
+            for file in list_files:
+                zipF.write(file, compress_type=zipfile.ZIP_DEFLATED)
+
+        print('File has been zipped')\
+        
+    except Exception as e:
+        print(e)
 
 
 
