@@ -10,13 +10,13 @@ import zipfile
 def checkUserExist(self):
         while True:
             try:
-                username = input('Enter username: ').lower()
+                username = encrypt(input('Enter username: ').lower())
                 self.cur.execute("SELECT lower(username) FROM users WHERE lower(username) = ?", (username,))
                 exists = self.cur.fetchall()
                 if exists:
                     print("Username already chosen...")
                 else:
-                    return username
+                    return decrypt(username)
             except Exception as e:
                 print(e)   
         
@@ -105,17 +105,13 @@ def validateEmail():
 def searchClient(self):
         while True:
             try:
-                client = input('Please enter full name of client: ').lower()
+                client = encrypt(input('Please enter full name of client: ').lower())
                 self.cur.execute("SELECT * FROM client WHERE lower(fullname) = ?", (client,))
                 data=self.cur.fetchall()
                 if len(data)==0:
-                    print('There is no client named %s'%client)
+                    print('Client not found')
                 else:
-                    print('client found\n')
-                    for row in self.cur.execute("SELECT fullname, address, zipcode, city, email, phone_number FROM client WHERE lower(fullname) = ?", (client,)):
-                        print(row)
-                        return client
-                    break
+                    return client
             except Exception as e:
                 print(e)
 
@@ -126,9 +122,8 @@ def searchUser(self):
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ?", (user_name,))
                 data=self.cur.fetchall()
                 if len(data)==0:
-                    print('There is no user named %s'%user_name)
+                    print('User not found')
                 else:
-                    print('user found\n')
                     return user_name
             except Exception as e:
                 print(e)
@@ -356,13 +351,15 @@ def add_new_users(self,number):
             isSysadmin = 0
         timestamp = datetime.now()
 
-        testtuple = (user_name,passw,firstname,lastname,isAdmin,isSysadmin,isAdvisor,timestamp)
+        testlist = [user_name,passw,firstname,lastname]
+        notEncrypted = [isAdmin,isSysadmin,isAdvisor,timestamp]
+        EncryptedData = [encrypt(i) for i in testlist]
 
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("INSERT INTO users(username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES (?,?,?,?,?,?,?,?)", testtuple)
+            self.cur.execute("INSERT INTO users(username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES (?,?,?,?,?,?,?,?)", EncryptedData + notEncrypted)
             self.conn.commit()
             print('User sucessfully added.')
 
@@ -465,6 +462,21 @@ def zip_files():
         print(e)
 
 
+def encrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) + key
+        message += chr(new_letter)
+    return message
+
+def decrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) - key
+        message += chr(new_letter)
+    return message
 
 
 

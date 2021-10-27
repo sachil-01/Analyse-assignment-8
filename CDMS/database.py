@@ -145,11 +145,11 @@ class db:
         print('---List of Users---')
         for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
             if(row[4] == 1):
-                print('User ' + str(userCount) + ' = ' + row[0] + ' | Role: superadmin')
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: superadmin')
             elif(row[5]== 1):
-                print('User ' + str(userCount) + ' = ' + row[0] + ' | Role: system admin')
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: system admin')
             else:
-                print('User ' + str(userCount) + ' = ' + row[0] + ' | Role: advisor')
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: advisor')
             userCount += 1
     
     def add_new_client(self):       
@@ -185,9 +185,11 @@ class db:
         print('Phone number is ' + str(phoneNumber))
         
         entry = (fullname, address, zipcode, city, eMail, phoneNumber)
+
+        EncryptedData = [encrypt(i) for i in entry]
         
         try:
-            self.cur.execute("INSERT INTO client(fullname, address, zipcode, city, email, phone_number) VALUES (?,?,?,?,?,?)", entry)
+            self.cur.execute("INSERT INTO client(fullname, address, zipcode, city, email, phone_number) VALUES (?,?,?,?,?,?)", EncryptedData)
             self.conn.commit()
             print('Client sucessfully added.')
 
@@ -414,13 +416,13 @@ class db:
                 print(e)
 
             print('---Client Info---\n')
-            print('id = ' + str(info[0]))
-            print('fullname = ' + info[1])
-            print('address = ' + info[2])
-            print('zipcode = ' + info[3])
-            print('city = ' + info[4])
-            print('email = ' + info[5])
-            print('phone number = ' + info[6])
+            print('id = ' + str((info[0])))
+            print('fullname = ' + decrypt(info[1]))
+            print('address = ' + decrypt(info[2]))
+            print('zipcode = ' + decrypt(info[3]))
+            print('city = ' + decrypt(info[4]))
+            print('email = ' + decrypt(info[5]))
+            print('phone number = ' + decrypt(info[6]))
 
             return
     

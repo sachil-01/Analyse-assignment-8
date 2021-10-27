@@ -55,3 +55,22 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 
 
 # validateEmail()
+
+def encrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) + key
+        message += chr(new_letter)
+    return message
+
+def decrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) - key
+        message += chr(new_letter)
+    return message
+
+
+print(encrypt('|okvkns}y|'))
