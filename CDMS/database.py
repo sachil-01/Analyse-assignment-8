@@ -28,6 +28,7 @@ class user:
 # Database
 # --------------------------------------------------------------------
 class db:
+    global db_menu
     
     def __init__(self, db_name, client_table_name, users_table_name):
         self.db_name = db_name
@@ -68,7 +69,7 @@ class db:
             print(e)
 
     def login(self):
-        global user_type, username
+        global user_type, username, db_menu
         username = input("please enter username: ").lower()
         password = input("please enter password: ")
         
@@ -101,8 +102,10 @@ class db:
                 user_type = 'Admin'
             elif(loggedin_user[5] == 1):
                 user_type = 'system_admin'
+                db_menu = sysadmin_menu
             else:
                 user_type = 'advisor'
+                db_menu = advisor_menu
             # self.admin_is_loggedin = loggedin_user[4]
             # user_type = 'Admin' if self.admin_is_loggedin == 1 else 'Not Admin'
             print('\n\n\n\nWelcome')
@@ -221,7 +224,7 @@ class db:
         client = searchClient(self)
 
         print('[1] fullname\n[2] address\n[3] zipcode\n[4] city\n[5] email\n[6] phone number\n')
-        print('Which record do you want to delete? Please choose 1-5')
+        print('Which record do you want to delete? Please choose 1-6')
         
         empty = ""
         while True:
@@ -290,7 +293,26 @@ class db:
         return
 
     def make_a_user_admin(self):
-        self.not_implemented(self.make_a_user_admin)       
+        # self.not_implemented(self.make_a_user_admin)
+        print('---This user will be set to admin---\n')
+        user = searchUser(self)
+
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+
+        try:
+            self.cur.execute("UPDATE users SET admin = ?, system_admin = ?, advisor = ? WHERE username = ?", (1,0,0, user))
+            self.conn.commit()
+            print('New admin set succesfully')
+
+        except Exception as e:
+                print(e)
+        return
+
+
+
+
+
 
     def delete_client(self):
         self.conn = sqlite3.connect(self.db_name) 
@@ -528,3 +550,14 @@ db_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all user
             [7, 'delete a client', client.delete_client], [8, 'delete a advisor', client.deleteAdvisor],[9,'delete client record', client.delete_client_record], \
             [10, 'change password', client.change_password],[11, 'reset advisor password', client.reset_advisor_password],[12, 'reset admin password', client.reset_admin_password],[13, 'update client info', client.update_client_info], \
             [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info], [0, 'logout', client.logout]]
+
+
+advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
+            [3, 'add new client', client.add_new_client], [4, 'search client info', client.get_client_info], \
+            [5, 'update client info', client.update_client_info],[0, 'logout', client.logout]]
+
+sysadmin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
+            [3, 'add new client', client.add_new_client],[4, 'add new advisor', client.add_new_user], [5, 'search client info', client.get_client_info], \
+            [6, 'update client info', client.update_client_info],[7,'update advisor info', client.update_advisor_info],[8, 'reset advisor password', client.reset_advisor_password],
+            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record], [0, 'logout', client.logout]]
+

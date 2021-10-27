@@ -107,7 +107,7 @@ def searchClient(self):
 def searchUser(self):
         while True:
             try:
-                user_name = input('Please enter username to delete: ')
+                user_name = input('Please enter username : ')
                 self.cur.execute("SELECT * FROM users WHERE username = ?", (user_name,))
                 data=self.cur.fetchall()
                 if len(data)==0:
@@ -369,8 +369,6 @@ def changePassword(self, advisor_name):
 
     except Exception as e:
             print(e)
-
-
     return
 
 def changeFirstname(self, advisor_name):
