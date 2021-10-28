@@ -132,7 +132,7 @@ class db:
         clientCount = 1
         print('---List of Clients---')
         for row in self.cur.execute('SELECT * FROM client'):
-            print('Client ' + str(clientCount) + ' = ' + row[1])
+            print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]))
             clientCount += 1
 
 
