@@ -132,7 +132,7 @@ def searchAdvisor(self):
         while True:
             try:
                 advisor = 1
-                user_name = input('Please enter advisor username: ').lower()
+                user_name = encrypt( input('Please enter advisor username: ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND advisor = ?", (user_name, advisor))
                 data=self.cur.fetchall()
                 if len(data)==0:
@@ -147,7 +147,7 @@ def searchAdmin(self):
         while True:
             try:
                 admin = 1
-                user_name = input('Please enter admins username: ').lower()
+                user_name = encrypt(input('Please enter admins username: ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND admin = ?", (user_name, admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
@@ -162,7 +162,7 @@ def searchSysAdmin(self):
         while True:
             try:
                 sys_admin = 1
-                user_name = input('Please enter system admin username: ').lower()
+                user_name = encrypt(input('Please enter system admin username: ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND system_admin = ?", (user_name, sys_admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
