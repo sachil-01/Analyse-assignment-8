@@ -118,7 +118,7 @@ def searchClient(self):
 def searchUser(self):
         while True:
             try:
-                user_name = input('Please enter username : ').lower()
+                user_name = encrypt(input('Please enter username : ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ?", (user_name,))
                 data=self.cur.fetchall()
                 if len(data)==0:
@@ -132,11 +132,11 @@ def searchAdvisor(self):
         while True:
             try:
                 advisor = 1
-                user_name = encrypt( input('Please enter advisor username: ').lower())
+                user_name = encrypt(input('Please enter advisor username: ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND advisor = ?", (user_name, advisor))
                 data=self.cur.fetchall()
                 if len(data)==0:
-                    print('There is no advisor named %s'%user_name)
+                    print('Advisor not found ')
                 else:
                     print('user found\n')
                     return user_name
@@ -151,7 +151,7 @@ def searchAdmin(self):
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND admin = ?", (user_name, admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
-                    print('There is no admin named %s'%user_name)
+                    print('Admin not found')
                 else:
                     print('user found\n')
                     return user_name
@@ -166,7 +166,7 @@ def searchSysAdmin(self):
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND system_admin = ?", (user_name, sys_admin))
                 data=self.cur.fetchall()
                 if len(data)==0:
-                    print('There is no system admin named %s'%user_name)
+                    print('system admin not found.')
                 else:
                     print('user found\n')
                     return user_name
@@ -181,7 +181,7 @@ def changeFullname(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (newName, client))
+        self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (encrypt(newName), client))
         self.conn.commit()
         print('Fullname updated successfully')
 
@@ -197,7 +197,7 @@ def changeAddress(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (newAddress, client))
+        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (encrypt(newAddress), client))
         self.conn.commit()
         print('Address updated successfully')
 
@@ -213,7 +213,7 @@ def changeZip(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (newZip, client))
+        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (encrypt(newZip), client))
         self.conn.commit()
         print('Zipcode updated successfully')
 
@@ -247,7 +247,7 @@ def changeCity(self, client):
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (city, client))
+            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (encrypt(city), client))
             self.conn.commit()
             print('City updated successfully')
 
@@ -265,7 +265,7 @@ def changeEmail(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (email, client))
+        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client))
         self.conn.commit()
         print('email updated successfully')
 
@@ -281,7 +281,7 @@ def changePhone(self, client):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (newPhone, client))
+        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (encrypt(newPhone), client))
         self.conn.commit()
         print('phone number updated successfully')
 
@@ -292,13 +292,13 @@ def changePhone(self, client):
 
 def changeUsername(self, advisor_name):
     
-    print('Please enter a new username for ' + advisor_name)
-    user_name = validateUser()
+    print('Please enter a new username: ')
+    user_name = validateUser(self)
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE users SET username = ? WHERE lower(username) = ?", (user_name, advisor_name))
+        self.cur.execute("UPDATE users SET username = ? WHERE lower(username) = ?", (encrypt(user_name), advisor_name))
         self.conn.commit()
         print('Username updated successfully')
 
@@ -369,13 +369,13 @@ def add_new_users(self,number):
 
 
 def changePassword(self, advisor_name):
-    print('Please enter a new password for ' + advisor_name)
+    print('Please enter a new password:  ')
     new_pass = validatePassword()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (new_pass, advisor_name))
+        self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(new_pass), advisor_name))
         self.conn.commit()
         print('Password updated successfully')
 
@@ -384,12 +384,12 @@ def changePassword(self, advisor_name):
     return
 
 def changeFirstname(self, advisor_name):
-    print('Enter a new firstname for '+ advisor_name)
+    print('Enter a new firstname:  ')
     newName = input('firstname: ')
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
-        self.cur.execute("UPDATE users SET firstname = ? WHERE lower(username) = ?", (newName, advisor_name))
+        self.cur.execute("UPDATE users SET firstname = ? WHERE lower(username) = ?", (encrypt(newName), advisor_name))
         self.conn.commit()
         print('Firstname updated successfully')
 
@@ -398,12 +398,12 @@ def changeFirstname(self, advisor_name):
     return
 
 def changeLastname(self, advisor_name):
-    print('Enter a new lastname for '+ advisor_name)
+    print('Enter a new lastname: ')
     newLastName = input('Lastname: ')
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
-        self.cur.execute("UPDATE users SET lastname = ? WHERE lower(username) = ?", (newLastName, advisor_name))
+        self.cur.execute("UPDATE users SET lastname = ? WHERE lower(username) = ?", (encrypt(newLastName), advisor_name))
         self.conn.commit()
         print('Lastname updated successfully')
 
@@ -477,6 +477,38 @@ def decrypt(string):
         new_letter = ord(letter) - key
         message += chr(new_letter)
     return message
+
+
+def logActivity(self, username, date, description, add_info, suspicious, read):
+
+    try:
+        info = [username,date,description,add_info,suspicious, read]
+        for i, v in enumerate(info):
+            info[i] = encrypt(v)
+
+        self.cur.execute("INSERT INTO logging(username, date, description, additional_information, suspicious, read) VALUES (?,?,?,?,?,?)", info)
+        self.conn.commit()
+        print('Logs sucessfully added.')
+
+    except Exception as e:
+        print(e)
+    return
+
+def readActivity(self):
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+
+    try:
+        self.cur.execute("UPDATE logging SET read = ? WHERE read = ? ", (encrypt("Yes"),encrypt("No"),))
+        self.conn.commit()
+        print('Log has been viewed')
+
+    except Exception as e:
+        print(e)
+    
+    pass
+
+
 
 
 

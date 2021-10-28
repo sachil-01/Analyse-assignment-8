@@ -73,4 +73,5 @@ def decrypt(string):
     return message
 
 
-print(encrypt('|okvkns}y|'))
+print(decrypt('MFQQTT%INY%NX%JJS%YJXY'))
+print(encrypt("test"))

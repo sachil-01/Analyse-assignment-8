@@ -14,6 +14,8 @@ client_tb_name = 'client'
 users_tb_name = 'users'
 user_type = ""
 username = ""
+now = datetime.now() # current date and time
+date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 
 
 # User
@@ -60,11 +62,25 @@ class db:
         # create user table if it does not exist
         tb_create = "CREATE TABLE users (username TEXT, password TEXT, firstname TEXT, lastname TEXT, admin INT, system_admin INT, advisor INT, joinDate TIMESTAMP);"
         try:
+            # self.cur.execute("DROP TABLE users")
             self.cur.execute(tb_create)
             # add sample records to the db manually
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('superadmin', 'Admin!23', 'admin', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('ivy_russel', 'ivy@R123' , 'Ivy Russel', '', 0, 0, 1,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('test', 'test' , 'test account', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('yjxy', 'yjxy' , '', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
+            self.conn.commit()
+        except Exception as e: 
+            print(e)
+        
+        # create logging table if it does not exist
+        tb_create = "CREATE TABLE logging (username TEXT, date TEXT, description TEXT, additional_information TEXT, suspicious TEXT, read TEXT);"
+        try:
+            # self.cur.execute("DROP TABLE logging")
+            self.cur.execute(tb_create)
+            # add sample records to the db manually
+            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
+            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
+            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
+            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('mike122', '12-05-2021','Unsuccessful login', 'Password “tempPW@123” is tried in combination with Username: “mike122”', 'No')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -85,10 +101,9 @@ class db:
         # {"username": username, "password": password})
         
         try:
-            self.cur.execute("SELECT * from users WHERE lower(username) = ? AND password = ?", (username, password))
+            self.cur.execute("SELECT * from users WHERE lower(username) = ? AND password = ?", (encrypt(username), encrypt(password)))
         
         except OperationalError as ErrorMessage:
-            # print(ErrorMessage)
             print("Invalid input")
             #log the error message
 
@@ -96,11 +111,14 @@ class db:
         loggedin_user = self.cur.fetchone()
         if not loggedin_user:  # An empty result evaluates to False.
             print("Invalid username or password.")
+            logActivity(self,username, date_time,'Unsuccessful login','password: ' + password + ' is tried with with username: ' + username,"Yes","No" )
         else:
+            logActivity(self, username, date_time, 'Logged in', '','No','No')
             self.loggedin = 1
             self.loggedin_user = username
             if(loggedin_user[4] == 1):
                 user_type = 'Admin'
+                db_menu = admin_menu
             elif(loggedin_user[5] == 1):
                 user_type = 'system_admin'
                 db_menu = sysadmin_menu
@@ -124,7 +142,6 @@ class db:
             del db_interface
 
     def show_all_clients(self):
-        # print("being worked on ")
 
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
@@ -156,8 +173,12 @@ class db:
         
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
-
-        fullname = input('Please enter fullname: ')
+        while True:
+            fullname = input('Please enter fullname: ')
+            if(fullname == ""):
+                print('fullname cannot be empty')
+            else:
+                break
         print('fullname = ' + fullname)
         address = input('Please enter address: ')
         print('address = ' + address)
@@ -173,7 +194,7 @@ class db:
 
             print('')
             chosenNumber = input('Please choose a city from 1-10: ')
-            if int(chosenNumber) not in [1,2,3,4,5,6,7,8,9,10]:
+            if (chosenNumber not in ['1','2','3','4','5','6','7','8','9','10']):
                 print('Invalid number\n')
             else:
                 break
@@ -304,7 +325,7 @@ class db:
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE users SET admin = ?, system_admin = ?, advisor = ? WHERE username = ?", (1,0,0, user))
+            self.cur.execute("UPDATE users SET admin = ?, system_admin = ?, advisor = ? WHERE lower(username) = ?", (1,0,0, user))
             self.conn.commit()
             print('New admin set succesfully')
 
@@ -356,7 +377,7 @@ class db:
         newPass = validatePassword()
 
         try:
-            self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (newPass, username))
+            self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (encrypt(newPass), encrypt(username)))
             self.conn.commit()
             print('Password updated successfully')
 
@@ -436,7 +457,7 @@ class db:
         print("Advisor password will be set to temporary password Welkom@01")
 
         try:
-            self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (temp_psw, advisor_name))
+            self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(temp_psw), advisor_name))
             self.conn.commit()
             print('password updated successfully')
 
@@ -454,7 +475,7 @@ class db:
         print("Admin password will be set to temporary password P@ssw0rd100")
 
         try:
-            self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (temp_psw, admin_name))
+            self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(temp_psw), admin_name))
             self.conn.commit()
             print('password updated successfully')
 
@@ -524,12 +545,10 @@ class db:
         else:
             changeLastname(self, name)
     
-    
-    
     def create_db_backup(self):
         self.conn = sqlite3.connect(self.db_name) 
         try:
-            with io.open('DB_backup.sql', 'w') as p: 
+            with io.open('DB_backup.sql', 'w', encoding='utf-8') as p: 
             
                 for line in self.conn.iterdump(): 
                 
@@ -539,6 +558,33 @@ class db:
             print(' Data Saved as DB_backup.sql')
             zip_files()
             self.conn.close()
+        except Exception as e:
+            print(e)
+    
+    def showLogs(self):
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()   
+        try:
+            self.cur.execute("SELECT * FROM logging")
+            data = self.cur.fetchall()
+            decryptedData = [(decrypt(tuple[0]), decrypt(tuple[1]), decrypt(tuple[2]), decrypt(tuple[3]), decrypt(tuple[4]), decrypt(tuple[5])) for tuple in data]
+            header = ("username", "date", "description", "additional information", "suspicious", "read")
+            widths = [len(cell) for cell in header]
+            for row in data:
+                for i, cell in enumerate(row):
+                    widths[i] = max(len(str(cell)), widths[i])
+
+            # Construct formatted row like before
+            formatted_row = ' '.join('{:%d}' % width for width in widths)
+
+            # print('DEBUG: widths={!r}'.format(widths))
+            # print('DEBUG: formatted_row={!r}'.format(formatted_row))
+            print(formatted_row.format(*header))
+            for row in decryptedData:
+                print(formatted_row.format(*row))  
+
+            readActivity(self)                  
+        
         except Exception as e:
             print(e)
 
@@ -558,12 +604,13 @@ def escape_sql_meta(sql_query):
 
 client = db(company_db_name, client_tb_name, users_tb_name)
 main_menu = [[1, 'login', client.login ], [0, 'Exit', client.close]]
-db_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all users', client.show_all_users], \
+admin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all users', client.show_all_users], \
             [3, 'add new client', client.add_new_client], [4, 'add new user', client.add_new_user], \
             [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
             [7, 'delete a client', client.delete_client], [8, 'delete a advisor', client.deleteAdvisor],[9,'delete client record', client.delete_client_record], \
             [10, 'change password', client.change_password],[11, 'reset advisor password', client.reset_advisor_password],[12, 'reset admin password', client.reset_admin_password],[13, 'update client info', client.update_client_info], \
-            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info],[17,'Backup database', client.create_db_backup], [0, 'logout', client.logout]]
+            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info],[17,'Backup database', client.create_db_backup],
+            [18,'Show logs',client.showLogs], [0, 'logout', client.logout]]
 
 
 advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
@@ -573,5 +620,6 @@ advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change p
 sysadmin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
             [3, 'add new client', client.add_new_client],[4, 'add new advisor', client.add_new_user], [5, 'search client info', client.get_client_info], \
             [6, 'update client info', client.update_client_info],[7,'update advisor info', client.update_advisor_info],[8, 'reset advisor password', client.reset_advisor_password],
-            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'Backup database', client.create_db_backup], [0, 'logout', client.logout]]
+            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'Backup database', client.create_db_backup], 
+            [13,'Show logs',client.showLogs],[0, 'logout', client.logout]]
 
