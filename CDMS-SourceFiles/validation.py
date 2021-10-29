@@ -284,7 +284,7 @@ def changeEmail(self, client, username, date_time):
         self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client[0]))
         self.conn.commit()
         print('email updated successfully')
-        logActivity(self,username,date_time,'Email updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
+        logActivity(self,username,date_time,'Email updated', 'Client name: ' + client[1] ,'No','No')
 
     except Exception as e:
             print(e)
