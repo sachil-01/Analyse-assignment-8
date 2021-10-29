@@ -1,22 +1,30 @@
 from sqlite3.dbapi2 import OperationalError
 
+from validation import showNotification
+
 class user_interface:
+    
 
 
     default_menu = [[1, 'option 1', None], [2, 'option 2', None], [3, 'option 2', None], [0, 'Exit', None]]
 
-    def __init__(self, menuheading='Not logged in', menueitems = default_menu):
+    def __init__(self, user_type, message, notification, menuheading='Not logged in', menueitems = default_menu ):
         self.menuheading = menuheading
         self.menuitems = menueitems
         self.menuoptions = [option[0] for option in self.menuitems]
         self.menufunctions = [option[2] for option in self.menuitems]
-
+        self.message = message
+        self.notification = notification
+        self.user_type = user_type
     def menu_display(self):
         print(self.menuheading)
         print('_________________________________\n')        
         for option in self.menuitems:
             print('[' + str(option[0]) + ']' + ' ' + option[1])
-                
+        if((self.user_type == 'Admin' or self.user_type == 'system_admin') and (self.notification == True)):
+            self.message = 'suspicious activity detected, please check your logs!!'.upper()
+            print(self.message)
+        self.message = ""
     def default_no_menuitems(self):
         print('Menu items are not defined')
 

@@ -105,13 +105,23 @@ def validateEmail():
 def searchClient(self):
         while True:
             try:
-                client = encrypt(input('Please enter full name of client: ').lower())
-                self.cur.execute("SELECT * FROM client WHERE lower(fullname) = ?", (client,))
+                while True:
+                    try:
+                        show_all_clients(self)
+                        client = int(input('Please enter the client ID: '))
+                        if(isinstance(client, int)):
+                            break
+                    except Exception as e:
+                        print('Wrong input. Please enter a number')
+                self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
                 data=self.cur.fetchall()
                 if len(data)==0:
                     print('Client not found')
                 else:
-                    return client
+                    fetch = self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
+                    test = fetch.fetchall()
+                    fullname = test[0][1] # First element in first tuple in list
+                    return [client,decrypt(fullname)]
             except Exception as e:
                 print(e)
 
@@ -181,10 +191,10 @@ def changeFullname(self, client,username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (encrypt(newName), client))
+        self.cur.execute("UPDATE client SET fullname = ? WHERE person_id = ?", (encrypt(newName), client[0]))
         self.conn.commit()
         print('Fullname updated successfully')
-        logActivity(self,username,date_time,'Fullname updated', 'Client name: ' + decrypt(client) ,'No','No')
+        logActivity(self,username,date_time,'Fullname updated', 'Client name: ' + client[1] ,'No','No')
 
     except Exception as e:
             print(e)
@@ -198,10 +208,10 @@ def changeAddress(self, client,username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (encrypt(newAddress), client))
+        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (encrypt(newAddress), client[0]))
         self.conn.commit()
         print('Address updated successfully')
-        logActivity(self,username,date_time,'address updated', 'Client name: ' + decrypt(client) ,'No','No')
+        logActivity(self,username,date_time,'address updated', 'Client name: ' + client[1] ,'No','No')
 
     except Exception as e:
             print(e)
@@ -215,10 +225,10 @@ def changeZip(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (encrypt(newZip), client))
+        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (encrypt(newZip), client[0]))
         self.conn.commit()
         print('Zipcode updated successfully')
-        logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client) ,'No','No')
+        logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -250,10 +260,10 @@ def changeCity(self, client, username, date_time):
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (encrypt(city), client))
+            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (encrypt(city), client[0]))
             self.conn.commit()
             print('City updated successfully')
-            logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client) ,'No','No')
+            logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
 
         except Exception as e:
                 print(e)
@@ -269,10 +279,10 @@ def changeEmail(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client))
+        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client[0]))
         self.conn.commit()
         print('email updated successfully')
-        logActivity(self,username,date_time,'Email updated', 'Client name: ' + decrypt(client) ,'No','No')
+        logActivity(self,username,date_time,'Email updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -286,10 +296,10 @@ def changePhone(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (encrypt(newPhone), client))
+        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (encrypt(newPhone), client[0]))
         self.conn.commit()
         print('phone number updated successfully')
-        logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client) ,'No','No')
+        logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -519,13 +529,37 @@ def readActivity(self):
         self.cur.execute("UPDATE logging SET read = ? WHERE read = ? ", (encrypt("Yes"),encrypt("No"),))
         self.conn.commit()
         print('Log has been viewed')
+        
 
     except Exception as e:
         print(e)
+
+def showNotification(self):
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
     
-    pass
+    try:
+        sus = (encrypt('Yes'),encrypt('No'))
+        self.cur.execute("SELECT * FROM logging WHERE suspicious = ? AND read = ?", (sus))
+        data=self.cur.fetchall()
+        if len(data)==0:
+            return False
+        else:
+            return True
+    except Exception as e:
+                print(e)
 
 
+def show_all_clients(self):
+
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+
+    clientCount = 1
+    print('---List of Clients---')
+    for row in self.cur.execute('SELECT * FROM client'):
+        print('Client ' + str(row[0]) + ' = ' + decrypt(row[1]))
+        clientCount += 1
 
 
 

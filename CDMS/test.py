@@ -56,23 +56,23 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 
 # validateEmail()
 
-# def encrypt(string):
-#     key = 5
-#     message = ''
-#     for letter in string:
-#         new_letter = ord(letter) + key
-#         message += chr(new_letter)
-#     return message
+def encrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) + key
+        message += chr(new_letter)
+    return message
 
-# def decrypt(string):
-#     key = 5
-#     message = ''
-#     for letter in string:
-#         new_letter = ord(letter) - key
-#         message += chr(new_letter)
-#     return message
+def decrypt(string):
+    key = 5
+    message = ''
+    for letter in string:
+        new_letter = ord(letter) - key
+        message += chr(new_letter)
+    return message
 
 
-# print(decrypt('MFQQTT%INY%NX%JJS%YJXY'))
-# print(encrypt("test"))
+print(decrypt('MFQQTT%INY%NX%JJS%YJXY'))
+print(encrypt("Admin!23"))
 

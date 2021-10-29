@@ -18,7 +18,7 @@ main_heading = '''
 Main Menu'''
 
 
-main_interface = user_interface(main_heading, menueitems = main_menu)
+main_interface = user_interface( user_type, message, notification, main_heading, menueitems = main_menu)
 
 if __name__ == "__main__":
     main_interface.run()

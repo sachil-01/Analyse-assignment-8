@@ -16,6 +16,8 @@ user_type = ""
 username = ""
 now = datetime.now() # current date and time
 date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
+notification = False
+message = ''
 
 
 # User
@@ -51,10 +53,11 @@ class db:
         # create client table if it does not exist
         tb_create = "CREATE TABLE client (person_id INTEGER PRIMARY KEY AUTOINCREMENT, fullname CHAR, address TEXT, zipcode TEXT, city TEXT, email TEXT, phone_number TEXT)"
         try:
+            # self.cur.execute("DROP TABLE client")
             self.cur.execute(tb_create)
             # add sample records to the db manually
-            self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Lili Anderson', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
-            self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Anne Banwarth', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
+            # self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Lili Anderson', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
+            # self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Anne Banwarth', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -67,6 +70,8 @@ class db:
             # add sample records to the db manually
             self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
             self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('yjxy', 'yjxy' , '', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('x~xyjrfirns', 'Firns&78' , '', '', 0, 1, 0,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('fi{nxtw', 'Firns&78' , '', '', 0, 0, 1,'2021-10-25 18:09:12.091144')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -125,6 +130,13 @@ class db:
             else:
                 user_type = 'advisor'
                 db_menu = advisor_menu
+            
+            notification = showNotification(self)
+            print(notification)
+            message = ''
+
+
+
             # self.admin_is_loggedin = loggedin_user[4]
             # user_type = 'Admin' if self.admin_is_loggedin == 1 else 'Not Admin'
             print('\n\n\n\nWelcome')
@@ -137,7 +149,7 @@ class db:
                       '▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀'  + '\n'   + \
                       'User Menu'
             
-            db_interface = user_interface(heading, db_menu)
+            db_interface = user_interface(user_type, message, notification,heading, db_menu)
             db_interface.run()
             del db_interface
 
@@ -260,55 +272,55 @@ class db:
                 print('Please enter a valid number')
         if(record == '1'):
             try:
-                self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET fullname = ? WHERE person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('fullname record has been deleted.')
-                logActivity(self,username,date_time,'Fullname deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'Fullname deleted', 'Client name: ' + client[1] ,'No','No')
 
             except Exception as e:
                 print(e)
             return
         elif(record == '2'):
             try:
-                self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET address = ? WHERE person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('address record has been deleted.')
-                logActivity(self,username,date_time,'Address deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'Address deleted', 'Client name: ' + client[1] ,'No','No')
             except Exception as e:
                 print(e)
             return
         elif(record =='3'):
             try:
-                self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET zipcode = ? WHERE person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('zipcode record has been deleted.')
-                logActivity(self,username,date_time,'Zipcode deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'Zipcode deleted', 'Client name: ' + client[1] ,'No','No')
             except Exception as e:
                 print(e)            
             return
         elif(record =='4'):
             try:
-                self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET city = ? WHERE  person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('city record has been deleted.')
-                logActivity(self,username,date_time,'City deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'City deleted', 'Client name: ' + client[1] ,'No','No')
             except Exception as e:
                 print(e)        
         elif(record == '5'):
             try:
-                self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET email = ? WHERE person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('email record has been deleted.')
-                logActivity(self,username,date_time,'Email deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'Email deleted', 'Client name: ' + client[1] ,'No','No')
             except Exception as e:
                 print(e)               
             return
         else:
             try:
-                self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (empty, client))
+                self.cur.execute("UPDATE client SET phone_number = ? WHERE person_id = ?", (empty, client[0]))
                 self.conn.commit()
                 print('phone number record has been deleted.')
-                logActivity(self,username,date_time,'Phone number deleted', 'Client name: ' + decrypt(client) ,'No','No')
+                logActivity(self,username,date_time,'Phone number deleted', 'Client name: ' + client[1] ,'No','No')
             except Exception as e:
                 print(e) 
             return
@@ -349,9 +361,10 @@ class db:
         print('--Deleting a client---\n')
         client = searchClient(self)
         try:
-            self.cur.execute("DELETE FROM client WHERE lower(fullname) = ?", (client, ))
+            self.cur.execute("DELETE FROM client WHERE person_id = ?", (client[0], ))
             self.conn.commit()
             print('Client sucessfully Deleted.')
+            logActivity(self, username,date_time,'Client deleted','Client '+client[1] + ' has been deleted','No','No')
 
         except Exception as e:
             print(e)
@@ -397,9 +410,8 @@ class db:
 
 
     def update_client_info(self):
+        show_all_clients(self)
         
-        print("which client do you want to update?")
-
         client = searchClient(self)
         print('')
         columns = ['fullname','address','zipcode','city','email','phone number']
@@ -441,7 +453,7 @@ class db:
             try:
 
                 count = 0
-                for row in self.cur.execute("SELECT * FROM client WHERE lower(fullname) =?", (client,)):
+                for row in self.cur.execute("SELECT * FROM client WHERE person_id =?", (client[0],)):
                     info = row
             except Exception as e:
                 print(e)
@@ -455,7 +467,7 @@ class db:
             print('email = ' + decrypt(info[5]))
             print('phone number = ' + decrypt(info[6]))
 
-            logActivity(self,username,date_time,'Client info accessed','Info of ' + decrypt(client) + ' has been accessed','No','No')
+            logActivity(self,username,date_time,'Client info accessed','Info of ' + client[1] + ' has been accessed','No','No')
             return
     
     def reset_advisor_password(self):
@@ -597,7 +609,6 @@ class db:
             print(formatted_row.format(*header))
             for row in decryptedData:
                 print(formatted_row.format(*row))  
-
             readActivity(self)                  
         
         except Exception as e:
