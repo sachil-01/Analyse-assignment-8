@@ -174,7 +174,7 @@ def searchSysAdmin(self):
                 print(e)
 
 
-def changeFullname(self, client):
+def changeFullname(self, client,username, date_time):
 
     newName = input('Please enter new fullname for client: ')
     self.conn = sqlite3.connect(self.db_name) 
@@ -184,13 +184,14 @@ def changeFullname(self, client):
         self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (encrypt(newName), client))
         self.conn.commit()
         print('Fullname updated successfully')
+        logActivity(self,username,date_time,'Fullname updated', 'Client name: ' + decrypt(client) ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def changeAddress(self, client):
+def changeAddress(self, client,username, date_time):
 
     newAddress = input('Please enter new address for client: ')
     self.conn = sqlite3.connect(self.db_name) 
@@ -200,13 +201,14 @@ def changeAddress(self, client):
         self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (encrypt(newAddress), client))
         self.conn.commit()
         print('Address updated successfully')
+        logActivity(self,username,date_time,'address updated', 'Client name: ' + decrypt(client) ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def changeZip(self, client):
+def changeZip(self, client, username, date_time):
 
     newZip = validateZip()
     self.conn = sqlite3.connect(self.db_name) 
@@ -216,6 +218,7 @@ def changeZip(self, client):
         self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (encrypt(newZip), client))
         self.conn.commit()
         print('Zipcode updated successfully')
+        logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -226,7 +229,7 @@ def changeZip(self, client):
     
 
 
-def changeCity(self, client):
+def changeCity(self, client, username, date_time):
 
         CityNames = [[1,'Den haag'], [2,'Rotterdam'], [3,'Schiedam'], [4,'Arnhem'], [5,'Amsterdam'],[6,'Nijmegen'], [7,'Haarlem'],
                     [8,'Delft'],[9,'Eindhoven'], [10,'Breda']]
@@ -250,6 +253,7 @@ def changeCity(self, client):
             self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (encrypt(city), client))
             self.conn.commit()
             print('City updated successfully')
+            logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client) ,'No','No')
 
         except Exception as e:
                 print(e)
@@ -258,7 +262,7 @@ def changeCity(self, client):
 
 
 
-def changeEmail(self, client):
+def changeEmail(self, client, username, date_time):
     
     email = validateEmail()
     self.conn = sqlite3.connect(self.db_name) 
@@ -268,6 +272,7 @@ def changeEmail(self, client):
         self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client))
         self.conn.commit()
         print('email updated successfully')
+        logActivity(self,username,date_time,'Email updated', 'Client name: ' + decrypt(client) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -275,7 +280,7 @@ def changeEmail(self, client):
     return
 
 
-def changePhone(self, client):
+def changePhone(self, client, username, date_time):
     newPhone = validatePhone()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
@@ -284,13 +289,14 @@ def changePhone(self, client):
         self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (encrypt(newPhone), client))
         self.conn.commit()
         print('phone number updated successfully')
+        logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client) ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def changeUsername(self, advisor_name):
+def changeUsername(self, advisor_name, username, date_time):
     
     print('Please enter a new username: ')
     user_name = validateUser(self)
@@ -301,13 +307,14 @@ def changeUsername(self, advisor_name):
         self.cur.execute("UPDATE users SET username = ? WHERE lower(username) = ?", (encrypt(user_name), advisor_name))
         self.conn.commit()
         print('Username updated successfully')
+        logActivity(self,username,date_time,'Username updated', 'username: ' + decrypt(advisor_name) + ' updated to ' + user_name ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def add_new_users(self,number):
+def add_new_users(self,number, username, date_time):
         user_name = validateUser(self)
         passw = validatePassword()
         if(number =='1'):
@@ -363,12 +370,14 @@ def add_new_users(self,number):
             self.conn.commit()
             print('User sucessfully added.')
 
+            logActivity(self, username, date_time, 'new ' + 'Admin created' if isAdmin == 1 else ('Advisor created' if isAdvisor == 1 else 'System admin created') ,'username is ' + user_name, 'No', 'No')
+
         except Exception as e:
             print(e)
         return
 
 
-def changePassword(self, advisor_name):
+def changePassword(self, advisor_name, username, date_time):
     print('Please enter a new password:  ')
     new_pass = validatePassword()
     self.conn = sqlite3.connect(self.db_name) 
@@ -378,12 +387,13 @@ def changePassword(self, advisor_name):
         self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(new_pass), advisor_name))
         self.conn.commit()
         print('Password updated successfully')
+        logActivity(self,username,date_time,'Password updated', 'username: ' + decrypt(advisor_name) ,'No','No')
 
     except Exception as e:
             print(e)
     return
 
-def changeFirstname(self, advisor_name):
+def changeFirstname(self, advisor_name, username, date_time):
     print('Enter a new firstname:  ')
     newName = input('firstname: ')
     self.conn = sqlite3.connect(self.db_name) 
@@ -392,12 +402,13 @@ def changeFirstname(self, advisor_name):
         self.cur.execute("UPDATE users SET firstname = ? WHERE lower(username) = ?", (encrypt(newName), advisor_name))
         self.conn.commit()
         print('Firstname updated successfully')
+        logActivity(self,username,date_time,'Firstname updated', 'username: ' + decrypt(advisor_name) ,'No','No')
 
     except Exception as e:
             print(e)
     return
 
-def changeLastname(self, advisor_name):
+def changeLastname(self, advisor_name, username, date_time):
     print('Enter a new lastname: ')
     newLastName = input('Lastname: ')
     self.conn = sqlite3.connect(self.db_name) 
@@ -406,12 +417,13 @@ def changeLastname(self, advisor_name):
         self.cur.execute("UPDATE users SET lastname = ? WHERE lower(username) = ?", (encrypt(newLastName), advisor_name))
         self.conn.commit()
         print('Lastname updated successfully')
+        logActivity(self,username,date_time,'Lastname updated', 'username: ' + decrypt(advisor_name) ,'No','No')
 
     except Exception as e:
             print(e)
     return
 
-def deleteUsers(self, number):
+def deleteUsers(self, number, username, date_time):
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     if(number=='1'):
@@ -420,6 +432,7 @@ def deleteUsers(self, number):
             self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (admin, ))
             self.conn.commit()
             print('User successfully Deleted.')
+            logActivity(self,username,date_time,'Admin deleted', 'username: '+ decrypt(admin),'No','No')
 
         except Exception as e:
             print(e)
@@ -430,6 +443,7 @@ def deleteUsers(self, number):
             self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (sys_admin, ))
             self.conn.commit()
             print('User successfully Deleted.')
+            logActivity(self,username,date_time,'System admin deleted', 'username: '+ decrypt(sys_admin),'No','No')
 
         except Exception as e:
             print(e)
@@ -437,18 +451,19 @@ def deleteUsers(self, number):
 
 
 
-def deleteAdvisor(self):
+def deleteAdvisor(self, username, date_time):
     user_name = searchAdvisor(self)
     try:
         self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
         self.conn.commit()
         print('User sucessfully Deleted.')
+        logActivity(self,username,date_time,'Advisor  deleted', 'username: '+ decrypt(user_name),'No','No')
 
     except Exception as e:
         print(e)
     return
 
-def zip_files():
+def zip_files(self,username,date_time):
     list_files = ['DB_backup.sql']
         
     try:
@@ -456,7 +471,8 @@ def zip_files():
             for file in list_files:
                 zipF.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
-        print('File has been zipped')\
+        print('File has been zipped')
+        # logActivity(self,username,date_time,'Backup is zipped','DB_backup.sql has been zipped','No','No')
         
     except Exception as e:
         print(e)
@@ -480,7 +496,8 @@ def decrypt(string):
 
 
 def logActivity(self, username, date, description, add_info, suspicious, read):
-
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
     try:
         info = [username,date,description,add_info,suspicious, read]
         for i, v in enumerate(info):

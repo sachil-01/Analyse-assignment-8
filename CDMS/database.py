@@ -31,7 +31,7 @@ class user:
 # Database
 # --------------------------------------------------------------------
 class db:
-    global db_menu
+    global db_menu, username
     
     def __init__(self, db_name, client_table_name, users_table_name):
         self.db_name = db_name
@@ -105,7 +105,7 @@ class db:
         
         except OperationalError as ErrorMessage:
             print("Invalid input")
-            #log the error message
+            logActivity(self, username, date_time,'Invalid input','','Yes','No')
 
 
         loggedin_user = self.cur.fetchone()
@@ -213,6 +213,7 @@ class db:
             self.cur.execute("INSERT INTO client(fullname, address, zipcode, city, email, phone_number) VALUES (?,?,?,?,?,?)", EncryptedData)
             self.conn.commit()
             print('Client sucessfully added.')
+            logActivity(self,username,date_time,'New client created', 'Client name: ' + username ,'No','No')
 
         except Exception as e:
             print(e)
@@ -226,7 +227,7 @@ class db:
                 print('Which user do you want to make?')
                 number = input()
                 if(number in ['1','2','3']):
-                    add_new_users(self,number)
+                    add_new_users(self,number,username, date_time)
                     return
                 else:
                     print('Enter a valid number.')
@@ -236,7 +237,7 @@ class db:
                 print('Which user do you want to make?')
                 number = input()
                 if(number in ['1']):
-                    add_new_users(self,'1')
+                    add_new_users(self,'1',username,date_time)
                     return
                 else:
                     print('Enter a valid number.\n')
@@ -262,6 +263,8 @@ class db:
                 self.cur.execute("UPDATE client SET fullname = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('fullname record has been deleted.')
+                logActivity(self,username,date_time,'Fullname deleted', 'Client name: ' + decrypt(client) ,'No','No')
+
             except Exception as e:
                 print(e)
             return
@@ -270,6 +273,7 @@ class db:
                 self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('address record has been deleted.')
+                logActivity(self,username,date_time,'Address deleted', 'Client name: ' + decrypt(client) ,'No','No')
             except Exception as e:
                 print(e)
             return
@@ -278,6 +282,7 @@ class db:
                 self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('zipcode record has been deleted.')
+                logActivity(self,username,date_time,'Zipcode deleted', 'Client name: ' + decrypt(client) ,'No','No')
             except Exception as e:
                 print(e)            
             return
@@ -286,6 +291,7 @@ class db:
                 self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('city record has been deleted.')
+                logActivity(self,username,date_time,'City deleted', 'Client name: ' + decrypt(client) ,'No','No')
             except Exception as e:
                 print(e)        
         elif(record == '5'):
@@ -293,6 +299,7 @@ class db:
                 self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('email record has been deleted.')
+                logActivity(self,username,date_time,'Email deleted', 'Client name: ' + decrypt(client) ,'No','No')
             except Exception as e:
                 print(e)               
             return
@@ -301,6 +308,7 @@ class db:
                 self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (empty, client))
                 self.conn.commit()
                 print('phone number record has been deleted.')
+                logActivity(self,username,date_time,'Phone number deleted', 'Client name: ' + decrypt(client) ,'No','No')
             except Exception as e:
                 print(e) 
             return
@@ -328,6 +336,7 @@ class db:
             self.cur.execute("UPDATE users SET admin = ?, system_admin = ?, advisor = ? WHERE lower(username) = ?", (1,0,0, user))
             self.conn.commit()
             print('New admin set succesfully')
+            logActivity(self, username, date_time, 'User updated to admin', 'user ' + decrypt(user)+ ' updated to admin','No','No')
 
         except Exception as e:
                 print(e)
@@ -361,13 +370,13 @@ class db:
                     break
         
         if(number == '1'):
-            deleteUsers(self, number)
+            deleteUsers(self, number, username, date_time)
             return
         elif(number == '2'):
-            deleteUsers(self, number)
+            deleteUsers(self, number, username, date_time)
             return
         else:
-            deleteAdvisor(self)
+            deleteAdvisor(self,username,date_time)
 
 
 
@@ -380,6 +389,7 @@ class db:
             self.cur.execute("UPDATE users SET password = ? WHERE username = ?", (encrypt(newPass), encrypt(username)))
             self.conn.commit()
             print('Password updated successfully')
+            logActivity(self,username,date_time, 'Changed own password','','No','No' )
 
         except Exception as e:
             print(e)
@@ -409,17 +419,17 @@ class db:
                 print('Please enter a valid number')
         
         if(chosenNumber == '1'):
-            changeFullname(self, client)
+            changeFullname(self, client, username,date_time)
         elif(chosenNumber == '2'):
-            changeAddress(self, client)
+            changeAddress(self, client, username,date_time)
         elif(chosenNumber == '3'):
-            changeZip(self, client)
+            changeZip(self, client, username,date_time)
         elif(chosenNumber == '4'):
-            changeCity(self, client)
+            changeCity(self, client, username,date_time)
         elif(chosenNumber == '5'):
-            changeEmail(self, client)
+            changeEmail(self, client, username,date_time)
         else:
-            changePhone(self, client)
+            changePhone(self, client, username,date_time)
         
 
     def get_client_info(self):
@@ -445,6 +455,7 @@ class db:
             print('email = ' + decrypt(info[5]))
             print('phone number = ' + decrypt(info[6]))
 
+            logActivity(self,username,date_time,'Client info accessed','Info of ' + decrypt(client) + ' has been accessed','No','No')
             return
     
     def reset_advisor_password(self):
@@ -460,6 +471,7 @@ class db:
             self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(temp_psw), advisor_name))
             self.conn.commit()
             print('password updated successfully')
+            logActivity(self, username, date_time, 'Advisor password reset', 'username: ' + decrypt(advisor_name), 'No', 'No')
 
         except Exception as e:
                 print(e)
@@ -478,6 +490,7 @@ class db:
             self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(temp_psw), admin_name))
             self.conn.commit()
             print('password updated successfully')
+            logActivity(self,username, date_time,'Admin password reset','username: ' + decrypt(admin_name),'No','No' )
 
         except Exception as e:
                 print(e)
@@ -506,13 +519,13 @@ class db:
                 print('Please enter a valid number')
         
         if(chosenNumber == '1'):
-            changeUsername(self, name)
+            changeUsername(self, name, username, date_time)
         elif(chosenNumber == '2'):
-            changePassword(self, name)
+            changePassword(self, name, username, date_time)
         elif(chosenNumber == '3'):
-            changeFirstname(self, name)
+            changeFirstname(self, name, username, date_time)
         else:
-            changeLastname(self, name)
+            changeLastname(self, name, username, date_time)
 
     def update_admin_info(self):
         
@@ -537,13 +550,13 @@ class db:
                 print('Please enter a valid number')
         
         if(chosenNumber == '1'):
-            changeUsername(self, name)
+            changeUsername(self, name, username, date_time)
         elif(chosenNumber == '2'):
-            changePassword(self, name)
+            changePassword(self, name, username, date_time)
         elif(chosenNumber == '3'):
-            changeFirstname(self, name)
+            changeFirstname(self, name, username, date_time)
         else:
-            changeLastname(self, name)
+            changeLastname(self, name, username, date_time)
     
     def create_db_backup(self):
         self.conn = sqlite3.connect(self.db_name) 
@@ -556,8 +569,10 @@ class db:
             
             print(' Backup has been created!')
             print(' Data Saved as DB_backup.sql')
-            zip_files()
+            print('test')
+            zip_files(self,username,date_time)
             self.conn.close()
+            logActivity(self,username,date_time,'Database backup created','DB_backup.sql created and zipped','No','No')
         except Exception as e:
             print(e)
     
