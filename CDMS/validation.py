@@ -3,6 +3,7 @@ import string
 import sqlite3
 from datetime import datetime
 import zipfile
+import os
 
 
 # make a pattern
@@ -128,6 +129,7 @@ def searchClient(self):
 def searchUser(self):
         while True:
             try:
+                show_all_users(self)
                 user_name = encrypt(input('Please enter username : ').lower())
                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ?", (user_name,))
                 data=self.cur.fetchall()
@@ -482,7 +484,10 @@ def zip_files(self,username,date_time):
                 zipF.write(file, compress_type=zipfile.ZIP_DEFLATED)
 
         print('File has been zipped')
-        # logActivity(self,username,date_time,'Backup is zipped','DB_backup.sql has been zipped','No','No')
+        if os.path.exists("DB_backup.sql"):
+            os.remove("DB_backup.sql")
+        else:
+            print("Nothing to remove")
         
     except Exception as e:
         print(e)
@@ -515,7 +520,6 @@ def logActivity(self, username, date, description, add_info, suspicious, read):
 
         self.cur.execute("INSERT INTO logging(username, date, description, additional_information, suspicious, read) VALUES (?,?,?,?,?,?)", info)
         self.conn.commit()
-        print('Logs sucessfully added.')
 
     except Exception as e:
         print(e)
@@ -562,16 +566,17 @@ def show_all_clients(self):
         clientCount += 1
 
 
+def show_all_users(self):
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
 
-# while True:
-#     firstname = input("firstname = : ")
-
-#     pattern = re.compile("[A-Za-z0-9]+")
-#     pattern.fullmatch(firstname)
-
-#         # if found match (entire string matches pattern)
-#     if pattern.fullmatch(firstname) is not None:
-#         print("Found match: " + firstname)
-#     else:
-#         # if not found match
-#         print("No match")
+    userCount = 1
+    print('---List of Users---')
+    for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
+        if(row[4] == 1):
+            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: superadmin')
+        elif(row[5]== 1):
+            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: system admin')
+        else:
+            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: advisor')
+        userCount += 1

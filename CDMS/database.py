@@ -53,7 +53,6 @@ class db:
         # create client table if it does not exist
         tb_create = "CREATE TABLE client (person_id INTEGER PRIMARY KEY AUTOINCREMENT, fullname CHAR, address TEXT, zipcode TEXT, city TEXT, email TEXT, phone_number TEXT)"
         try:
-            # self.cur.execute("DROP TABLE client")
             self.cur.execute(tb_create)
             # add sample records to the db manually
             # self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Lili Anderson', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
@@ -65,7 +64,6 @@ class db:
         # create user table if it does not exist
         tb_create = "CREATE TABLE users (username TEXT, password TEXT, firstname TEXT, lastname TEXT, admin INT, system_admin INT, advisor INT, joinDate TIMESTAMP);"
         try:
-            # self.cur.execute("DROP TABLE users")
             self.cur.execute(tb_create)
             # add sample records to the db manually
             self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
@@ -79,13 +77,7 @@ class db:
         # create logging table if it does not exist
         tb_create = "CREATE TABLE logging (username TEXT, date TEXT, description TEXT, additional_information TEXT, suspicious TEXT, read TEXT);"
         try:
-            # self.cur.execute("DROP TABLE logging")
             self.cur.execute(tb_create)
-            # add sample records to the db manually
-            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
-            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
-            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('testaccount', 'testdate','New admin has been created', 'Dit is een test zin', 'No')")
-            # self.cur.execute("INSERT INTO logging (username, date, description, additional_information, suspicious) VALUES ('mike122', '12-05-2021','Unsuccessful login', 'Password “tempPW@123” is tried in combination with Username: “mike122”', 'No')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -132,13 +124,8 @@ class db:
                 db_menu = advisor_menu
             
             notification = showNotification(self)
-            print(notification)
             message = ''
 
-
-
-            # self.admin_is_loggedin = loggedin_user[4]
-            # user_type = 'Admin' if self.admin_is_loggedin == 1 else 'Not Admin'
             print('\n\n\n\nWelcome')
             heading = '▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄'  + '\n'   + \
                       '▍ '                                           + '\n'   + \
@@ -232,7 +219,6 @@ class db:
 
 
     def add_new_user(self):
-        #system_admin -> add advisor
         while True:
             if(user_type == 'Admin'):
                 print('[1] advisor\n[2] system admin\n[3] admin\n')
@@ -410,7 +396,6 @@ class db:
 
 
     def update_client_info(self):
-        show_all_clients(self)
         
         client = searchClient(self)
         print('')
@@ -451,7 +436,6 @@ class db:
             self.cur = self.conn.cursor()
             info = ""
             try:
-
                 count = 0
                 for row in self.cur.execute("SELECT * FROM client WHERE person_id =?", (client[0],)):
                     info = row
@@ -496,7 +480,7 @@ class db:
         self.cur = self.conn.cursor()
         temp_psw = 'P@ssw0rd100'
 
-        print("Admin password will be set to temporary password P@ssw0rd100")
+        print("Admin password will be set to temporary password: P@ssw0rd100")
 
         try:
             self.cur.execute("UPDATE users SET password = ? WHERE lower(username) = ?", (encrypt(temp_psw), admin_name))
@@ -581,7 +565,6 @@ class db:
             
             print(' Backup has been created!')
             print(' Data Saved as DB_backup.sql')
-            print('test')
             zip_files(self,username,date_time)
             self.conn.close()
             logActivity(self,username,date_time,'Database backup created','DB_backup.sql created and zipped','No','No')
@@ -601,11 +584,9 @@ class db:
                 for i, cell in enumerate(row):
                     widths[i] = max(len(str(cell)), widths[i])
 
-            # Construct formatted row like before
+
             formatted_row = ' '.join('{:%d}' % width for width in widths)
 
-            # print('DEBUG: widths={!r}'.format(widths))
-            # print('DEBUG: formatted_row={!r}'.format(formatted_row))
             print(formatted_row.format(*header))
             for row in decryptedData:
                 print(formatted_row.format(*row))  
@@ -633,10 +614,10 @@ main_menu = [[1, 'login', client.login ], [0, 'Exit', client.close]]
 admin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all users', client.show_all_users], \
             [3, 'add new client', client.add_new_client], [4, 'add new user', client.add_new_user], \
             [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
-            [7, 'delete a client', client.delete_client], [8, 'delete a advisor', client.deleteAdvisor],[9,'delete client record', client.delete_client_record], \
-            [10, 'change password', client.change_password],[11, 'reset advisor password', client.reset_advisor_password],[12, 'reset admin password', client.reset_admin_password],[13, 'update client info', client.update_client_info], \
-            [14,'update advisor info', client.update_advisor_info],[15,'update admin info', client.update_admin_info],[16, 'search client info',client.get_client_info],[17,'Backup database', client.create_db_backup],
-            [18,'Show logs',client.showLogs], [0, 'logout', client.logout]]
+            [7, 'delete a client', client.delete_client],[8,'delete client record', client.delete_client_record], \
+            [9, 'change password', client.change_password],[10, 'reset advisor password', client.reset_advisor_password],[11, 'reset admin password', client.reset_admin_password],[12, 'update client info', client.update_client_info], \
+            [13,'update advisor info', client.update_advisor_info],[14,'update admin info', client.update_admin_info],[15, 'search client info',client.get_client_info],[16,'backup database', client.create_db_backup],
+            [17,'show logs',client.showLogs], [0, 'logout', client.logout]]
 
 
 advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
@@ -646,6 +627,6 @@ advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change p
 sysadmin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
             [3, 'add new client', client.add_new_client],[4, 'add new advisor', client.add_new_user], [5, 'search client info', client.get_client_info], \
             [6, 'update client info', client.update_client_info],[7,'update advisor info', client.update_advisor_info],[8, 'reset advisor password', client.reset_advisor_password],
-            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'Backup database', client.create_db_backup], 
+            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'backup database', client.create_db_backup], 
             [13,'Show logs',client.showLogs],[0, 'logout', client.logout]]
 
