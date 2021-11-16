@@ -210,7 +210,7 @@ def changeAddress(self, client,username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET address = ? WHERE lower(fullname) = ?", (encrypt(newAddress), client[0]))
+        self.cur.execute("UPDATE client SET address = ? WHERE person_id = ?", (encrypt(newAddress), client[0]))
         self.conn.commit()
         print('Address updated successfully')
         logActivity(self,username,date_time,'address updated', 'Client name: ' + client[1] ,'No','No')
@@ -227,7 +227,7 @@ def changeZip(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET zipcode = ? WHERE lower(fullname) = ?", (encrypt(newZip), client[0]))
+        self.cur.execute("UPDATE client SET zipcode = ? WHERE person_id = ?", (encrypt(newZip), client[0]))
         self.conn.commit()
         print('Zipcode updated successfully')
         logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
@@ -262,7 +262,7 @@ def changeCity(self, client, username, date_time):
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE client SET city = ? WHERE lower(fullname) = ?", (encrypt(city), client[0]))
+            self.cur.execute("UPDATE client SET city = ? WHERE person_id = ?", (encrypt(city), client[0]))
             self.conn.commit()
             print('City updated successfully')
             logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
@@ -281,7 +281,7 @@ def changeEmail(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET email = ? WHERE lower(fullname) = ?", (encrypt(email), client[0]))
+        self.cur.execute("UPDATE client SET email = ? WHERE person_id = ?", (encrypt(email), client[0]))
         self.conn.commit()
         print('email updated successfully')
         logActivity(self,username,date_time,'Email updated', 'Client name: ' + client[1] ,'No','No')
@@ -298,7 +298,7 @@ def changePhone(self, client, username, date_time):
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET phone_number = ? WHERE lower(fullname) = ?", (encrypt(newPhone), client[0]))
+        self.cur.execute("UPDATE client SET phone_number = ? WHERE person_id = ?", (encrypt(newPhone), client[0]))
         self.conn.commit()
         print('phone number updated successfully')
         logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
