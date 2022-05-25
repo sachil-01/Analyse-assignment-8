@@ -114,13 +114,13 @@ class db:
             self.loggedin = 1
             self.loggedin_user = username
             if(loggedin_user[4] == 1):
-                user_type = 'Admin'
+                user_type = 'Super Administrator'
                 db_menu = admin_menu
             elif(loggedin_user[5] == 1):
-                user_type = 'system_admin'
+                user_type = 'System Administrator'
                 db_menu = sysadmin_menu
             else:
-                user_type = 'advisor'
+                user_type = 'Advisor'
                 db_menu = advisor_menu
             
             notification = showNotification(self)
