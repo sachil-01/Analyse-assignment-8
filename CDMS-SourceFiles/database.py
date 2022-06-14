@@ -4,6 +4,7 @@ from ui import *
 from termcolor import colored
 from validation import *
 from datetime import datetime
+import random
 
 # GLobal Variables
 
@@ -51,7 +52,7 @@ class db:
         self.cur = self.conn.cursor()
 
         # create client table if it does not exist
-        tb_create = "CREATE TABLE client (person_id INTEGER PRIMARY KEY AUTOINCREMENT, fullname CHAR, address TEXT, zipcode TEXT, city TEXT, email TEXT, phone_number TEXT)"
+        tb_create = "CREATE TABLE client (client_id CHAR, firstname CHAR, lastname CHAR, address TEXT, zipcode TEXT, city TEXT, email TEXT, phone_number TEXT, joinDate TIMESTAMP)"
         try:
             self.cur.execute(tb_create)
             # add sample records to the db manually
@@ -169,16 +170,24 @@ class db:
             userCount += 1
     
     def add_new_client(self):       
-        
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
         while True:
-            fullname = input('Please enter fullname: ')
-            if(fullname == ""):
+            firstname = input('Please enter firstname: ')
+            if(firstname == ""):
                 print('fullname cannot be empty')
             else:
                 break
-        print('fullname = ' + fullname)
+        print('firstname = ' + firstname)
+        while True:
+            lastname = input('Please enter lastname: ')
+            if(lastname == ""):
+                print('lastname cannot be empty')
+            else:
+                break
+        print('lastname = ' + lastname)
+        fullName = firstname + ' ' + lastname
+
         address = input('Please enter address: ')
         print('address = ' + address)
         zipcode = validateZip()
@@ -203,16 +212,18 @@ class db:
 
         phoneNumber = validatePhone()
         print('Phone number is ' + str(phoneNumber))
-        
-        entry = (fullname, address, zipcode, city, eMail, phoneNumber)
+        timestamp = datetime.now()
+        joinDate = timestamp.strftime("%d-%m-%Y, %H:%M:%S")
+        client_id = generate_string_id()
+        entry = [client_id, firstname, lastname, address, zipcode, city, eMail, phoneNumber, joinDate]
 
         EncryptedData = [encrypt(i) for i in entry]
         
         try:
-            self.cur.execute("INSERT INTO client(fullname, address, zipcode, city, email, phone_number) VALUES (?,?,?,?,?,?)", EncryptedData)
+            self.cur.execute("INSERT INTO client(client_id, firstname, lastname, address, zipcode, city, email, phone_number, joinDate) VALUES (?,?,?,?,?,?,?,?,?)", EncryptedData)
             self.conn.commit()
             print('Client sucessfully added.')
-            logActivity(self,username,date_time,'New client created', 'Client name: ' + username ,'No','No')
+            logActivity(self,username,date_time,'New client created', 'Client name: ' + fullName ,'No','No')
 
         except Exception as e:
             print(e)
@@ -220,7 +231,7 @@ class db:
 
     def add_new_user(self):
         while True:
-            if(user_type == 'Admin'):
+            if(user_type == 'Super Administrator'):
                 print('[1] advisor\n[2] system admin\n[3] admin\n')
                 print('Which user do you want to make?')
                 number = input()
@@ -230,7 +241,7 @@ class db:
                 else:
                     print('Enter a valid number.')
     
-            elif(user_type == 'system_admin'):
+            elif(user_type == 'System Administrator'):
                 print('[1] advisor\n')
                 print('Which user do you want to make?')
                 number = input()
@@ -397,8 +408,34 @@ class db:
 
     def update_client_info(self):
         
-        client = searchClient(self)
-        print('')
+        search = encrypt(input('Please enter keywords to search: '))
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+        counter = 1
+        self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
+        data = self.cur.fetchall()
+        for entry in data:
+            print(f'___Client number {counter}___\n')
+            print('client_id = ' + decrypt(entry[0]))
+            print('firstname = ' + decrypt(entry[1]))
+            print('lastname = ' + decrypt(entry[2]))
+            print('address = ' + decrypt(entry[3]))
+            print('zipcode = ' + decrypt(entry[4]))
+            print('city = ' + decrypt(entry[5]))
+            print('email = ' + decrypt(entry[6]))
+            print('phone number = ' + decrypt(entry[7]))
+            print('\n')
+            counter+=1
+        
+        while True:
+            SelectedClientNumber = input("Please enter Client number to update: ")
+            if(isinstance(int(SelectedClientNumber), int)):
+                print(f"please enter a number between 1 and {len(data)}")
+            else:
+                break
+
+        # if(SelectedClientNumber>=1 and SelectedClientNumber < len(data)):
+        SelectClient = data[SelectedClientNumber-1]
         columns = ['fullname','address','zipcode','city','email','phone number']
         count = 1
         try:
@@ -430,28 +467,7 @@ class db:
         
 
     def get_client_info(self):
-            client = searchClient(self)
-
-            self.conn = sqlite3.connect(self.db_name) 
-            self.cur = self.conn.cursor()
-            info = ""
-            try:
-                count = 0
-                for row in self.cur.execute("SELECT * FROM client WHERE person_id =?", (client[0],)):
-                    info = row
-            except Exception as e:
-                print(e)
-
-            print('---Client Info---\n')
-            print('id = ' + str((info[0])))
-            print('fullname = ' + decrypt(info[1]))
-            print('address = ' + decrypt(info[2]))
-            print('zipcode = ' + decrypt(info[3]))
-            print('city = ' + decrypt(info[4]))
-            print('email = ' + decrypt(info[5]))
-            print('phone number = ' + decrypt(info[6]))
-
-            logActivity(self,username,date_time,'Client info accessed','Info of ' + client[1] + ' has been accessed','No','No')
+            client = searchClientnew(self)
             return
     
     def reset_advisor_password(self):

@@ -1,9 +1,11 @@
+from itertools import count
 import re
 import string
 import sqlite3
 from datetime import datetime
 import zipfile
 import os
+import random
 
 
 # make a pattern
@@ -125,6 +127,31 @@ def searchClient(self):
                     return [client,decrypt(fullname)]
             except Exception as e:
                 print(e)
+
+def searchClientnew(self):
+    try:
+        search = encrypt(input('Please enter keywords to search: '))
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
+        info = ""
+        counter = 1
+        for row in self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%')):
+            info = row
+            print(f'___Client {counter}___\n')
+            print('client_id = ' + decrypt(info[0]))
+            print('firstname = ' + decrypt(info[1]))
+            print('lastname = ' + decrypt(info[2]))
+            print('address = ' + decrypt(info[3]))
+            print('zipcode = ' + decrypt(info[4]))
+            print('city = ' + decrypt(info[5]))
+            print('email = ' + decrypt(info[7]))
+            print('phone number = ' + decrypt(info[7]))
+            print('\n')
+            counter+=1
+        return 
+    except Exception as e: 
+        print(e)
+        
 
 def searchUser(self):
         while True:
@@ -580,3 +607,13 @@ def show_all_users(self):
         else:
             print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: advisor')
         userCount += 1
+
+def generate_string_id():
+    #checken nog op dubbel
+    x =random.randint(100000000,999999999)
+    sum = 0
+    for digit in str(x):
+        sum += int(digit)
+    remainder = sum % 10
+    member_id = str(x) + str(remainder)
+    return member_id
