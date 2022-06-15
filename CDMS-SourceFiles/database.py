@@ -427,13 +427,18 @@ class db:
             print('\n')
             counter+=1
         
-        while True:
-            SelectedClientNumber = input("Please enter Client number to update: ")
-            if(isinstance(int(SelectedClientNumber), int)):
-                print(f"please enter a number between 1 and {len(data)}")
-            else:
-                break
+        numbers = [int(i) for i in range(len(data))]
 
+        
+        while True:
+            try:
+                SelectedClientNumber = input("Please enter Client number to update: ")
+                if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
+                    print("Okay!")
+                else:
+                    break
+            except Exception as e:
+                print(f"Enter a number between 1 - {len(data)} ")
         # if(SelectedClientNumber>=1 and SelectedClientNumber < len(data)):
         SelectClient = data[SelectedClientNumber-1]
         columns = ['fullname','address','zipcode','city','email','phone number']
