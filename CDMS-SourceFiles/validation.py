@@ -80,7 +80,7 @@ def validatePassword():
         while True:  
             password = input("password = : ")
             if(len(password) < 8 or len(password) > 30):
-                print('Username MUST be between 8 and 30 characters')
+                print('Password MUST be between 8 and 30 characters')
             else: 
                 break
         while True:
@@ -106,27 +106,28 @@ def validateEmail():
         
 
 def searchClient(self):
-        while True:
-            try:
-                while True:
-                    try:
+        # while True:
+        #     try:
+        #         while True:
+        #             try:
                         show_all_clients(self)
-                        client = int(input('Please enter the client ID: '))
-                        if(isinstance(client, int)):
-                            break
-                    except Exception as e:
-                        print('Wrong input. Please enter a number')
-                self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
-                data=self.cur.fetchall()
-                if len(data)==0:
-                    print('Client not found')
-                else:
-                    fetch = self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
-                    test = fetch.fetchall()
-                    fullname = test[0][1] # First element in first tuple in list
-                    return [client,decrypt(fullname)]
-            except Exception as e:
-                print(e)
+                        return
+                        # client = int(input('Please enter the client ID: '))
+            #             if(isinstance(client, int)):
+            #                 break
+            #         except Exception as e:
+            #             print('Wrong input. Please enter a number')
+            #     self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
+            #     data=self.cur.fetchall()
+            #     if len(data)==0:
+            #         print('Client not found')
+            #     else:
+            #         fetch = self.cur.execute("SELECT * FROM client WHERE person_id = ?", (client,))
+            #         test = fetch.fetchall()
+            #         fullname = test[0][1] # First element in first tuple in list
+            #         return [client,decrypt(fullname)]
+            # except Exception as e:
+            #     print(e)
 
 def searchClientnew(self):
     try:
@@ -168,17 +169,42 @@ def searchUser(self):
                 print(e)
 
 def searchAdvisor(self):
-        while True:
             try:
-                advisor = 1
-                user_name = encrypt(input('Please enter advisor username: ').lower())
-                self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND advisor = ?", (user_name, advisor))
-                data=self.cur.fetchall()
-                if len(data)==0:
-                    print('Advisor not found ')
-                else:
-                    print('user found\n')
-                    return user_name
+                while True:
+                    while True:
+                        search = encrypt(input('Please enter keywords to search: '))
+                        if(search == ""):
+                            print("Cannot be empty, try again.")
+                        else:
+                            break
+                    self.conn = sqlite3.connect(self.db_name) 
+                    self.cur = self.conn.cursor()
+                    counter = 1
+                    self.cur.execute("SELECT * FROM users WHERE advisor = 6 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
+                    data = self.cur.fetchall()
+                    if(len(data)==0):
+                        print("No entries found, try again.")
+                    else:
+                        break
+                for entry in data:
+                    print(f'___Advisor number {counter}___\n')
+                    print('username = ' + decrypt(entry[0]))
+                    print('firstname = ' + decrypt(entry[2]))
+                    print('lastname = ' + decrypt(entry[3]))
+                    print('\n')
+                    counter+=1
+                clientNumber = 0
+                while True:
+                    try:
+                        SelectedClientNumber = input("Please enter advisor number to update: ")
+                        if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
+                            clientNumber = int(SelectedClientNumber)
+                            break
+                        else:
+                            print(f"Enter a number between 1 - {len(data)} ")
+                    except Exception as e:
+                        print(f"Enter a number between 1 - {len(data)} ")
+                return data[clientNumber-1][0]
             except Exception as e:
                 print(e)
 
@@ -213,51 +239,68 @@ def searchSysAdmin(self):
                 print(e)
 
 
-def changeFullname(self, client,username, date_time):
+def changeFirstnameClient(self, client_id,username, date_time):
 
-    newName = input('Please enter new fullname for client: ')
+    newName = input('Please enter new firstname for client: ')
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET fullname = ? WHERE person_id = ?", (encrypt(newName), client[0]))
+        self.cur.execute("UPDATE client SET firstname = ? WHERE client_id = ?", (encrypt(newName), client_id[0]))
         self.conn.commit()
-        print('Fullname updated successfully')
-        logActivity(self,username,date_time,'Fullname updated', 'Client name: ' + client[1] ,'No','No')
+        print('Firstname updated successfully')
+        logActivity(self,username,date_time,'firstname updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def changeAddress(self, client,username, date_time):
+def changeLastnameClient(self, client_id,username, date_time):
+
+    newName = input('Please enter new lastname for client: ')
+    self.conn = sqlite3.connect(self.db_name) 
+    self.cur = self.conn.cursor()
+
+    try:
+        self.cur.execute("UPDATE client SET lastname = ? WHERE client_id = ?", (encrypt(newName), client_id[0]))
+        self.conn.commit()
+        print('Lastname updated successfully')
+        logActivity(self,username,date_time,'lastname updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
+
+    except Exception as e:
+            print(e)
+
+    return
+
+def changeAddress(self, client_id,username, date_time):
 
     newAddress = input('Please enter new address for client: ')
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET address = ? WHERE person_id = ?", (encrypt(newAddress), client[0]))
+        self.cur.execute("UPDATE client SET address = ? WHERE client_id = ?", (encrypt(newAddress), client_id[0]))
         self.conn.commit()
         print('Address updated successfully')
-        logActivity(self,username,date_time,'address updated', 'Client name: ' + client[1] ,'No','No')
+        logActivity(self,username,date_time,'address updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
     except Exception as e:
             print(e)
 
     return
 
-def changeZip(self, client, username, date_time):
+def changeZip(self, client_id, username, date_time):
 
     newZip = validateZip()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET zipcode = ? WHERE person_id = ?", (encrypt(newZip), client[0]))
+        self.cur.execute("UPDATE client SET zipcode = ? WHERE client_id = ?", (encrypt(newZip), client_id[0]))
         self.conn.commit()
         print('Zipcode updated successfully')
-        logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
+        logActivity(self,username,date_time,'Zipcode updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -268,7 +311,7 @@ def changeZip(self, client, username, date_time):
     
 
 
-def changeCity(self, client, username, date_time):
+def changeCity(self, client_id, username, date_time):
 
         CityNames = [[1,'Den haag'], [2,'Rotterdam'], [3,'Schiedam'], [4,'Arnhem'], [5,'Amsterdam'],[6,'Nijmegen'], [7,'Haarlem'],
                     [8,'Delft'],[9,'Eindhoven'], [10,'Breda']]
@@ -289,10 +332,10 @@ def changeCity(self, client, username, date_time):
         self.cur = self.conn.cursor()
 
         try:
-            self.cur.execute("UPDATE client SET city = ? WHERE person_id = ?", (encrypt(city), client[0]))
+            self.cur.execute("UPDATE client SET city = ? WHERE client_id = ?", (encrypt(city), client_id[0]))
             self.conn.commit()
             print('City updated successfully')
-            logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
+            logActivity(self,username,date_time,'City updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
         except Exception as e:
                 print(e)
@@ -301,17 +344,17 @@ def changeCity(self, client, username, date_time):
 
 
 
-def changeEmail(self, client, username, date_time):
+def changeEmail(self, client_id, username, date_time):
     
     email = validateEmail()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET email = ? WHERE person_id = ?", (encrypt(email), client[0]))
+        self.cur.execute("UPDATE client SET email = ? WHERE client_id = ?", (encrypt(email), client_id[0]))
         self.conn.commit()
         print('email updated successfully')
-        logActivity(self,username,date_time,'Email updated', 'Client name: ' + client[1] ,'No','No')
+        logActivity(self,username,date_time,'Email updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -319,16 +362,16 @@ def changeEmail(self, client, username, date_time):
     return
 
 
-def changePhone(self, client, username, date_time):
+def changePhone(self, client_id, username, date_time):
     newPhone = validatePhone()
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
     try:
-        self.cur.execute("UPDATE client SET phone_number = ? WHERE person_id = ?", (encrypt(newPhone), client[0]))
+        self.cur.execute("UPDATE client SET phone_number = ? WHERE client_id = ?", (encrypt(newPhone), client_id[0]))
         self.conn.commit()
         print('phone number updated successfully')
-        logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client[1]) ,'No','No')
+        logActivity(self,username,date_time,'Phone number updated', 'Client name: ' + decrypt(client_id[1]) ,'No','No')
 
     except Exception as e:
             print(e)
@@ -369,9 +412,9 @@ def add_new_users(self,number, username, date_time):
                     print('lastname cannot be empty! ')
                 else:
                     break
-            isAdvisor = 1
-            isAdmin = 0
-            isSysadmin = 0
+            isAdvisor = 6
+            isAdmin = 5
+            isSysadmin = 5
 
         elif(number=='2'):
             while True:
@@ -386,15 +429,9 @@ def add_new_users(self,number, username, date_time):
                     print('lastname cannot be empty! ')
                 else:
                     break
-            isAdvisor = 0
-            isAdmin = 0
-            isSysadmin = 1
-        else:
-            firstname = input('enter firstname [OPTIONAL]:  ')
-            lastname = input('enter lastname: [OPTIONAL]: ')
-            isAdvisor = 0
-            isAdmin = 1
-            isSysadmin = 0
+            isAdvisor = 5
+            isAdmin = 5
+            isSysadmin = 6
         timestamp = datetime.now()
 
         testlist = [user_name,passw,firstname,lastname]
@@ -409,7 +446,7 @@ def add_new_users(self,number, username, date_time):
             self.conn.commit()
             print('User sucessfully added.')
 
-            logActivity(self, username, date_time, 'new ' + 'Admin created' if isAdmin == 1 else ('Advisor created' if isAdvisor == 1 else 'System admin created') ,'username is ' + user_name, 'No', 'No')
+            logActivity(self, username, date_time, 'new ' + 'Admin created' if isAdmin == 6 else ('Advisor created' if isAdvisor == 6 else 'System admin created') ,'username is ' + user_name, 'No', 'No')
 
         except Exception as e:
             print(e)
@@ -589,24 +626,24 @@ def show_all_clients(self):
     clientCount = 1
     print('---List of Clients---')
     for row in self.cur.execute('SELECT * FROM client'):
-        print('Client ' + str(row[0]) + ' = ' + decrypt(row[1]))
+        print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]))
         clientCount += 1
 
 
 def show_all_users(self):
-    self.conn = sqlite3.connect(self.db_name) 
-    self.cur = self.conn.cursor()
+        self.conn = sqlite3.connect(self.db_name) 
+        self.cur = self.conn.cursor()
 
-    userCount = 1
-    print('---List of Users---')
-    for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
-        if(row[4] == 1):
-            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: superadmin')
-        elif(row[5]== 1):
-            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: system admin')
-        else:
-            print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: advisor')
-        userCount += 1
+        userCount = 1
+        print('---List of Users---')
+        for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
+            if(row[4] == 6):
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Super Administrator')
+            elif(row[5]== 6):
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: System Administrator')
+            else:
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Advisor')
+            userCount += 1
 
 def generate_string_id():
     #checken nog op dubbel

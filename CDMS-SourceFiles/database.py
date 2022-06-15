@@ -67,10 +67,10 @@ class db:
         try:
             self.cur.execute(tb_create)
             # add sample records to the db manually
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('yjxy', 'yjxy' , '', '', 1, 0, 0,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('x~xyjrfirns', 'Firns&78' , '', '', 0, 1, 0,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('fi{nxtw', 'Firns&78' , '', '', 0, 0, 1,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 6, 5, 5,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('yjxy', 'yjxy' , '', '', 6, 5, 5,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('x~xyjrfirns', 'Firns&78' , '', '', 5, 6, 5,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('fi{nxtw', 'Firns&78' , '', '', 5, 5, 6,'2021-10-25 18:09:12.091144')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -114,10 +114,10 @@ class db:
             logActivity(self, username, date_time, 'Logged in', '','No','No')
             self.loggedin = 1
             self.loggedin_user = username
-            if(loggedin_user[4] == 1):
+            if(loggedin_user[4] == 6):
                 user_type = 'Super Administrator'
                 db_menu = admin_menu
-            elif(loggedin_user[5] == 1):
+            elif(loggedin_user[5] == 6):
                 user_type = 'System Administrator'
                 db_menu = sysadmin_menu
             else:
@@ -161,12 +161,12 @@ class db:
         userCount = 1
         print('---List of Users---')
         for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
-            if(row[4] == 1):
-                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: superadmin')
-            elif(row[5]== 1):
-                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: system admin')
+            if(row[4] == 6):
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Super Administrator')
+            elif(row[5]== 6):
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: System Administrator')
             else:
-                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: advisor')
+                print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Advisor')
             userCount += 1
     
     def add_new_client(self):       
@@ -232,10 +232,10 @@ class db:
     def add_new_user(self):
         while True:
             if(user_type == 'Super Administrator'):
-                print('[1] advisor\n[2] system admin\n[3] admin\n')
+                print('[1] advisor\n[2] system admin\n')
                 print('Which user do you want to make?')
                 number = input()
-                if(number in ['1','2','3']):
+                if(number in ['1','2']):
                     add_new_users(self,number,username, date_time)
                     return
                 else:
@@ -358,10 +358,27 @@ class db:
         print('--Deleting a client---\n')
         client = searchClient(self)
         try:
-            self.cur.execute("DELETE FROM client WHERE person_id = ?", (client[0], ))
+            self.cur.execute("SELECT * FROM client")
+            data=self.cur.fetchall()
+            if len(data)==0:
+                print('No clients in the system')
+                return
+            else:
+                clientDelete = input("Please enter Client ID to delete: ")
+                while True:
+                    try:
+                        if(isinstance(int(clientDelete), int) and int(clientDelete) >= 1 and int(clientDelete) <= len(data)):
+                            clientNumber = int(clientDelete)
+                            break
+                        else:
+                            print(f"Enter a number between 1 - {len(data)} ")
+                    except Exception as e:
+                        print(f"Enter a number between 1 - {len(data)} ")
+            client_id = data[clientNumber-1][0]
+            self.cur.execute("DELETE FROM client WHERE client_id = ?", (client_id, ))
             self.conn.commit()
             print('Client sucessfully Deleted.')
-            logActivity(self, username,date_time,'Client deleted','Client '+client[1] + ' has been deleted','No','No')
+            logActivity(self, username,date_time,'Client deleted','Client '+(decrypt(data[clientNumber-1][1])) + ' has been deleted','No','No')
 
         except Exception as e:
             print(e)
@@ -407,13 +424,17 @@ class db:
 
 
     def update_client_info(self):
-        
-        search = encrypt(input('Please enter keywords to search: '))
-        self.conn = sqlite3.connect(self.db_name) 
-        self.cur = self.conn.cursor()
-        counter = 1
-        self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
-        data = self.cur.fetchall()
+        while True:
+            search = encrypt(input('Please enter keywords to search: '))
+            self.conn = sqlite3.connect(self.db_name) 
+            self.cur = self.conn.cursor()
+            counter = 1
+            self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
+            data = self.cur.fetchall()
+            if(len(data)==0):
+                print("No entries found, try again.")
+            else:
+                break
         for entry in data:
             print(f'___Client number {counter}___\n')
             print('client_id = ' + decrypt(entry[0]))
@@ -428,20 +449,32 @@ class db:
             counter+=1
         
         numbers = [int(i) for i in range(len(data))]
-
         
+        clientNumber = 0
         while True:
             try:
                 SelectedClientNumber = input("Please enter Client number to update: ")
                 if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
-                    print("Okay!")
-                else:
+                    clientNumber = int(SelectedClientNumber)
                     break
+                else:
+                    print(f"Enter a number between 1 - {len(data)} ")
             except Exception as e:
                 print(f"Enter a number between 1 - {len(data)} ")
+
         # if(SelectedClientNumber>=1 and SelectedClientNumber < len(data)):
-        SelectClient = data[SelectedClientNumber-1]
-        columns = ['fullname','address','zipcode','city','email','phone number']
+        # SelectClient = data[SelectedClientNumber-1]
+        print(f"Client {clientNumber} has been selected.\n")
+        print('client_id = ' + decrypt(data[clientNumber-1][0]))
+        print('firstname = ' + decrypt(data[clientNumber-1][1]))
+        print('lastname = ' + decrypt(data[clientNumber-1][2]))
+        print('address = ' + decrypt(data[clientNumber-1][3]))
+        print('zipcode = ' + decrypt(data[clientNumber-1][4]))
+        print('city = ' + decrypt(data[clientNumber-1][5]))
+        print('email = ' + decrypt(data[clientNumber-1][6]))
+        print('phone number = ' + decrypt(data[clientNumber-1][7]))
+        print('\n')
+        columns = ['firstname','lastname','address','zipcode','city','email','phone number']
         count = 1
         try:
             for i in columns:
@@ -451,24 +484,26 @@ class db:
             print(e)
         print('')
         while True:
-            chosenNumber = input('Please enter which info you want to update 1-6: ')
-            if(chosenNumber in ['1','2','3','4','5','6']):
+            chosenNumber = input('Please enter which info you want to update 1-7: ')
+            if(chosenNumber in ['1','2','3','4','5','6','7']):
                 break
             else:
                 print('Please enter a valid number')
-        
+        client_id = [data[clientNumber-1][0],data[clientNumber-1][1]]
         if(chosenNumber == '1'):
-            changeFullname(self, client, username,date_time)
+            changeFirstnameClient(self, client_id, username,date_time)
         elif(chosenNumber == '2'):
-            changeAddress(self, client, username,date_time)
+            changeLastnameClient(self, client_id, username,date_time)
         elif(chosenNumber == '3'):
-            changeZip(self, client, username,date_time)
+            changeAddress(self, client_id, username,date_time)
         elif(chosenNumber == '4'):
-            changeCity(self, client, username,date_time)
+            changeZip(self, client_id, username,date_time)
         elif(chosenNumber == '5'):
-            changeEmail(self, client, username,date_time)
+            changeCity(self, client_id, username,date_time)
+        elif(chosenNumber == '6'):
+            changeEmail(self, client_id, username,date_time)
         else:
-            changePhone(self, client, username,date_time)
+            changePhone(self, client_id, username,date_time)
         
 
     def get_client_info(self):
@@ -517,7 +552,7 @@ class db:
         
         print('Which advisor do you want to update?')
         name = searchAdvisor(self)
-
+        
         columns = ['username','password','firstname','lastname']
 
         count =1
@@ -645,9 +680,9 @@ advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change p
             [3, 'add new client', client.add_new_client], [4, 'search client info', client.get_client_info], \
             [5, 'update client info', client.update_client_info],[0, 'logout', client.logout]]
 
-sysadmin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
-            [3, 'add new client', client.add_new_client],[4, 'add new advisor', client.add_new_user], [5, 'search client info', client.get_client_info], \
-            [6, 'update client info', client.update_client_info],[7,'update advisor info', client.update_advisor_info],[8, 'reset advisor password', client.reset_advisor_password],
-            [9, 'delete a client', client.delete_client],[10, 'delete a advisor', client.deleteAdvisor],[11,'delete client record', client.delete_client_record],[12,'backup database', client.create_db_backup], 
-            [13,'Show logs',client.showLogs],[0, 'logout', client.logout]]
+sysadmin_menu = [ [1, 'show all clients', client.show_all_clients],[2, 'show all users', client.show_all_users], [3, 'change password', client.change_password], \
+            [4, 'add new client', client.add_new_client],[5, 'add new advisor', client.add_new_user], [6, 'search client info', client.get_client_info], \
+            [7, 'update client info', client.update_client_info],[8,'update advisor info', client.update_advisor_info],[9, 'reset advisor password', client.reset_advisor_password],
+            [10, 'delete a client', client.delete_client],[11, 'delete a advisor', client.deleteAdvisor],[12,'delete client record', client.delete_client_record],[13,'backup database', client.create_db_backup], 
+            [14,'Show logs',client.showLogs],[0, 'logout', client.logout]]
 
