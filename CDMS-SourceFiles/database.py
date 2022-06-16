@@ -255,69 +255,112 @@ class db:
     def delete_client_record(self):
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()      
-        client = searchClient(self)
+        self.cur.execute('SELECT * FROM client')
+        data=self.cur.fetchall()
+        if len(data)==0:
+            print('No clients in the system')
+            return
+        clientCount = 1
+        print('---List of Clients---')
+        for row in self.cur.execute('SELECT * FROM client'):
+            print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]) + decrypt(row[2]))
+            clientCount += 1
 
-        print('[1] fullname\n[2] address\n[3] zipcode\n[4] city\n[5] email\n[6] phone number\n')
-        print('Which record do you want to delete? Please choose 1-6')
+        clientNumber = 0
+        while True:
+            try:
+                SelectedClientNumber = input("Please enter client number : ")
+                if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
+                    clientNumber = int(SelectedClientNumber)
+                    break
+                else:
+                    print(f"Enter a number between 1 - {len(data)} ")
+            except Exception as e:
+                print(f"Enter a number between 1 - {len(data)} ")
+            # return data[clientNumber-1][0]
+
+        print(f'___Client number {clientNumber}___\n')
+        print('client_id = ' + decrypt(data[clientNumber-1][0]))
+        print('firstname = ' + decrypt(data[clientNumber-1][1]))
+        print('lastname = ' + decrypt(data[clientNumber-1][2]))
+        print('address = ' + decrypt(data[clientNumber-1][3]))
+        print('zipcode = ' + decrypt(data[clientNumber-1][4]))
+        print('city = ' + decrypt(data[clientNumber-1][5]))
+        print('email = ' + decrypt(data[clientNumber-1][6]))
+        print('phone number = ' + decrypt(data[clientNumber-1][7]))
+        print('\n')
+
+        print("\n")
+        print('[1] firstname\n[2] lastname\n[3] address\n[4] zipcode\n[5] city\n[6] email\n[7] phone number\n')
+        print('Which record do you want to delete? Please choose 1-7')
         
         empty = ""
         while True:
             record = input('number: ')
-            if(record in ['1','2','3','4','5','6']):
+            if(record in ['1','2','3','4','5','6','7']):
                 break
             else:
                 print('Please enter a valid number')
         if(record == '1'):
             try:
-                self.cur.execute("UPDATE client SET fullname = ? WHERE person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET firstname = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
-                print('fullname record has been deleted.')
-                logActivity(self,username,date_time,'Fullname deleted', 'Client name: ' + client[1] ,'No','No')
+                print('firstname record has been deleted.')
+                logActivity(self,username,date_time,'firstname deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
 
             except Exception as e:
                 print(e)
             return
         elif(record == '2'):
             try:
-                self.cur.execute("UPDATE client SET address = ? WHERE person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET lastname = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
-                print('address record has been deleted.')
-                logActivity(self,username,date_time,'Address deleted', 'Client name: ' + client[1] ,'No','No')
+                print('lastname record has been deleted.')
+                logActivity(self,username,date_time,'lastname deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
             except Exception as e:
                 print(e)
             return
-        elif(record =='3'):
+        elif(record == '3'):
             try:
-                self.cur.execute("UPDATE client SET zipcode = ? WHERE person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET address = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
-                print('zipcode record has been deleted.')
-                logActivity(self,username,date_time,'Zipcode deleted', 'Client name: ' + client[1] ,'No','No')
+                print('address record has been deleted.')
+                logActivity(self,username,date_time,'Address deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
             except Exception as e:
-                print(e)            
+                print(e)
             return
         elif(record =='4'):
             try:
-                self.cur.execute("UPDATE client SET city = ? WHERE  person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET zipcode = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
+                self.conn.commit()
+                print('zipcode record has been deleted.')
+                logActivity(self,username,date_time,'Zipcode deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
+            except Exception as e:
+                print(e)            
+            return
+        elif(record =='5'):
+            try:
+                self.cur.execute("UPDATE client SET city = ? WHERE  client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
                 print('city record has been deleted.')
-                logActivity(self,username,date_time,'City deleted', 'Client name: ' + client[1] ,'No','No')
+                logActivity(self,username,date_time,'City deleted', 'Client name: ' +decrypt(data[clientNumber-1][1]) ,'No','No')
             except Exception as e:
                 print(e)        
-        elif(record == '5'):
+        elif(record == '6'):
             try:
-                self.cur.execute("UPDATE client SET email = ? WHERE person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET email = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
                 print('email record has been deleted.')
-                logActivity(self,username,date_time,'Email deleted', 'Client name: ' + client[1] ,'No','No')
+                logActivity(self,username,date_time,'Email deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
             except Exception as e:
                 print(e)               
             return
         else:
             try:
-                self.cur.execute("UPDATE client SET phone_number = ? WHERE person_id = ?", (empty, client[0]))
+                self.cur.execute("UPDATE client SET phone_number = ? WHERE client_id = ?", (empty, data[clientNumber-1][0]))
                 self.conn.commit()
                 print('phone number record has been deleted.')
-                logActivity(self,username,date_time,'Phone number deleted', 'Client name: ' + client[1] ,'No','No')
+                logActivity(self,username,date_time,'Phone number deleted', 'Client name: ' + decrypt(data[clientNumber-1][1]) ,'No','No')
             except Exception as e:
                 print(e) 
             return
@@ -363,17 +406,17 @@ class db:
             if len(data)==0:
                 print('No clients in the system')
                 return
-            else:
-                clientDelete = input("Please enter Client ID to delete: ")
-                while True:
-                    try:
-                        if(isinstance(int(clientDelete), int) and int(clientDelete) >= 1 and int(clientDelete) <= len(data)):
-                            clientNumber = int(clientDelete)
-                            break
-                        else:
-                            print(f"Enter a number between 1 - {len(data)} ")
-                    except Exception as e:
+
+            while True:
+                try:
+                    clientDelete = input("Please enter Client ID to delete: ")
+                    if(isinstance(int(clientDelete), int) and int(clientDelete) >= 1 and int(clientDelete) <= len(data)):
+                        clientNumber = int(clientDelete)
+                        break
+                    else:
                         print(f"Enter a number between 1 - {len(data)} ")
+                except Exception as e:
+                    print(f"Enter a number between 1 - {len(data)} ")
             client_id = data[clientNumber-1][0]
             self.cur.execute("DELETE FROM client WHERE client_id = ?", (client_id, ))
             self.conn.commit()

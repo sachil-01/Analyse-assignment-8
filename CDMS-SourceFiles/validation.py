@@ -196,7 +196,7 @@ def searchAdvisor(self):
                 clientNumber = 0
                 while True:
                     try:
-                        SelectedClientNumber = input("Please enter advisor number to update: ")
+                        SelectedClientNumber = input("Please enter advisor number : ")
                         if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
                             clientNumber = int(SelectedClientNumber)
                             break
@@ -626,7 +626,7 @@ def show_all_clients(self):
     clientCount = 1
     print('---List of Clients---')
     for row in self.cur.execute('SELECT * FROM client'):
-        print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]))
+        print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]) + decrypt(row[2]))
         clientCount += 1
 
 
