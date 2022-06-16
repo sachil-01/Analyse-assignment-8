@@ -468,9 +468,19 @@ class db:
 
     def update_client_info(self):
         while True:
-            search = encrypt(input('Please enter keywords to search: '))
             self.conn = sqlite3.connect(self.db_name) 
             self.cur = self.conn.cursor()
+            self.cur.execute("SELECT * FROM client")
+            data=self.cur.fetchall()
+            if len(data)==0:
+                print('No clients in the system')
+                return
+            search = encrypt(input('Please enter keywords to search: '))
+            self.cur.execute("SELECT * FROM client")
+            data=self.cur.fetchall()
+            if len(data)==0:
+                print('No clients in the system')
+                return
             counter = 1
             self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
             data = self.cur.fetchall()

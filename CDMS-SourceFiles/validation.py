@@ -131,25 +131,39 @@ def searchClient(self):
 
 def searchClientnew(self):
     try:
-        search = encrypt(input('Please enter keywords to search: '))
-        self.conn = sqlite3.connect(self.db_name) 
-        self.cur = self.conn.cursor()
-        info = ""
-        counter = 1
-        for row in self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%')):
-            info = row
-            print(f'___Client {counter}___\n')
-            print('client_id = ' + decrypt(info[0]))
-            print('firstname = ' + decrypt(info[1]))
-            print('lastname = ' + decrypt(info[2]))
-            print('address = ' + decrypt(info[3]))
-            print('zipcode = ' + decrypt(info[4]))
-            print('city = ' + decrypt(info[5]))
-            print('email = ' + decrypt(info[7]))
-            print('phone number = ' + decrypt(info[7]))
-            print('\n')
-            counter+=1
-        return 
+        while True:
+            while True:
+                self.conn = sqlite3.connect(self.db_name) 
+                self.cur = self.conn.cursor()
+                self.cur.execute("SELECT * FROM client")
+                data=self.cur.fetchall()
+                if len(data)==0:
+                    print('No clients in the system')
+                    return
+                search = encrypt(input('Please enter keywords to search: '))
+                if(search == ""):
+                    print("Cannot be empty, try again.")
+                else:
+                    break
+            counter = 1
+            self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
+            data = self.cur.fetchall()
+            if(len(data)==0):
+                print("No entries found, try again.")
+            else:
+                break
+            for entry in data:
+                print(f'___Client {counter}___\n')
+                print('client_id = ' + decrypt(entry[0]))
+                print('firstname = ' + decrypt(entry[1]))
+                print('lastname = ' + decrypt(entry[2]))
+                print('address = ' + decrypt(entry[3]))
+                print('zipcode = ' + decrypt(entry[4]))
+                print('city = ' + decrypt(entry[5]))
+                print('email = ' + decrypt(entry[7]))
+                print('phone number = ' + decrypt(entry[7]))
+                print('\n')
+                counter+=1
     except Exception as e: 
         print(e)
         
