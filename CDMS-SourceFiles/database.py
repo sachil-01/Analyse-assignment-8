@@ -4,6 +4,7 @@ from ui import *
 from termcolor import colored
 from validation import *
 from datetime import datetime
+import os
 import random
 
 # GLobal Variables
@@ -430,23 +431,22 @@ class db:
 
     def delete_user(self):
         while True:
-            if(user_type == 'Admin'):
+            if(user_type == 'Super Administrator'):
                 print('Which user do you want to delete?')
-                print('[1] admin\n[2] system admin\n[3] advisor\n')
+                print('[1] system admin\n[2] advisor\n')
                 number = input('Number: ')
-                if(number not in ['1','2','3']):
-                    print('Please enter a number between 1-3')
+                if(number not in ['1','2']):
+                    print('Please enter a number between 1-2')
                 else:
                     break
         
         if(number == '1'):
             deleteUsers(self, number, username, date_time)
             return
-        elif(number == '2'):
-            deleteUsers(self, number, username, date_time)
-            return
         else:
             deleteAdvisor(self,username,date_time)
+            return
+
 
 
 
@@ -566,6 +566,8 @@ class db:
     def reset_advisor_password(self):
 
         advisor_name = searchAdvisor(self)
+        if(advisor_name == "no entries found in the database"):
+            return
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
         temp_psw = 'Welkom@01'
@@ -584,7 +586,9 @@ class db:
 
     def reset_admin_password(self):
 
-        admin_name = searchAdmin(self)
+        admin_name = searchSysAdmin(self)
+        if(admin_name=="no entries found in the database"):
+            return
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()
         temp_psw = 'P@ssw0rd100'
@@ -632,10 +636,12 @@ class db:
         else:
             changeLastname(self, name, username, date_time)
 
-    def update_admin_info(self):
+    def update_systemadmin_info(self):
         
-        print('Which admin do you want to update?')
-        name = searchAdmin(self)
+        print('Which system admin do you want to update?')
+        name = searchSysAdmin(self)
+        if(name == "no entries found in the database"):
+            return
 
         columns = ['username','password','firstname','lastname']
 
@@ -666,6 +672,7 @@ class db:
     def create_db_backup(self):
         self.conn = sqlite3.connect(self.db_name) 
         try:
+
             with io.open('DB_backup.sql', 'w', encoding='utf-8') as p: 
             
                 for line in self.conn.iterdump(): 
@@ -725,7 +732,7 @@ admin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all u
             [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
             [7, 'delete a client', client.delete_client],[8,'delete client record', client.delete_client_record], \
             [9, 'change password', client.change_password],[10, 'reset advisor password', client.reset_advisor_password],[11, 'reset admin password', client.reset_admin_password],[12, 'update client info', client.update_client_info], \
-            [13,'update advisor info', client.update_advisor_info],[14,'update admin info', client.update_admin_info],[15, 'search client info',client.get_client_info],[16,'backup database', client.create_db_backup],
+            [13,'update advisor info', client.update_advisor_info],[14,'update system admin info', client.update_systemadmin_info],[15, 'search client info',client.get_client_info],[16,'backup database', client.create_db_backup],
             [17,'show logs',client.showLogs], [0, 'logout', client.logout]]
 
 

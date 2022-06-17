@@ -152,18 +152,18 @@ def searchClientnew(self):
                 print("No entries found, try again.")
             else:
                 break
-            for entry in data:
-                print(f'___Client {counter}___\n')
-                print('client_id = ' + decrypt(entry[0]))
-                print('firstname = ' + decrypt(entry[1]))
-                print('lastname = ' + decrypt(entry[2]))
-                print('address = ' + decrypt(entry[3]))
-                print('zipcode = ' + decrypt(entry[4]))
-                print('city = ' + decrypt(entry[5]))
-                print('email = ' + decrypt(entry[7]))
-                print('phone number = ' + decrypt(entry[7]))
-                print('\n')
-                counter+=1
+        for entry in data:
+            print(f'___Client {counter}___\n')
+            print('client_id = ' + decrypt(entry[0]))
+            print('firstname = ' + decrypt(entry[1]))
+            print('lastname = ' + decrypt(entry[2]))
+            print('address = ' + decrypt(entry[3]))
+            print('zipcode = ' + decrypt(entry[4]))
+            print('city = ' + decrypt(entry[5]))
+            print('email = ' + decrypt(entry[7]))
+            print('phone number = ' + decrypt(entry[7]))
+            print('\n')
+            counter+=1
     except Exception as e: 
         print(e)
         
@@ -186,6 +186,13 @@ def searchAdvisor(self):
             try:
                 while True:
                     while True:
+                        self.conn = sqlite3.connect(self.db_name) 
+                        self.cur = self.conn.cursor()
+                        self.cur.execute("SELECT * FROM users WHERE advisor = 6")
+                        data = self.cur.fetchall()
+                        if(len(data)==0):
+                            print("No advisors in system")
+                            return "no entries found in the database"
                         search = encrypt(input('Please enter keywords to search: '))
                         if(search == ""):
                             print("Cannot be empty, try again.")
@@ -194,6 +201,11 @@ def searchAdvisor(self):
                     self.conn = sqlite3.connect(self.db_name) 
                     self.cur = self.conn.cursor()
                     counter = 1
+                    self.cur.execute("SELECT * FROM users WHERE advisor = 6")
+                    data = self.cur.fetchall()
+                    if(len(data)==0):
+                        print("No advisors in system")
+                        return
                     self.cur.execute("SELECT * FROM users WHERE advisor = 6 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
                     data = self.cur.fetchall()
                     if(len(data)==0):
@@ -222,6 +234,53 @@ def searchAdvisor(self):
             except Exception as e:
                 print(e)
 
+def searchSysAdmin(self):
+            try:
+                while True:
+                    while True:
+                        self.conn = sqlite3.connect(self.db_name) 
+                        self.cur = self.conn.cursor()
+                        self.cur.execute("SELECT * FROM users WHERE system_admin = 6")
+                        data = self.cur.fetchall()
+                        if(len(data)==0):
+                            print("No system administrator in system")
+                            return "no entries found in the database"
+                        search = encrypt(input('Please enter keywords to search: '))
+                        if(search == ""):
+                            print("Cannot be empty, try again.")
+                        else:
+                            break
+                    self.conn = sqlite3.connect(self.db_name) 
+                    self.cur = self.conn.cursor()
+                    counter = 1
+                    self.cur.execute("SELECT * FROM users WHERE system_admin = 6 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
+                    data = self.cur.fetchall()
+                    if(len(data)==0):
+                        print("No entries found, try again.")
+                    else:
+                        break
+                for entry in data:
+                    print(f'___System administrator number {counter}___\n')
+                    print('username = ' + decrypt(entry[0]))
+                    print('firstname = ' + decrypt(entry[2]))
+                    print('lastname = ' + decrypt(entry[3]))
+                    print('\n')
+                    counter+=1
+                clientNumber = 0
+                while True:
+                    try:
+                        SelectedClientNumber = input("Please enter system administrator number : ")
+                        if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
+                            clientNumber = int(SelectedClientNumber)
+                            break
+                        else:
+                            print(f"Enter a number between 1 - {len(data)} ")
+                    except Exception as e:
+                        print(f"Enter a number between 1 - {len(data)} ")
+                return data[clientNumber-1][0]
+            except Exception as e:
+                print(e)
+
 def searchAdmin(self):
         while True:
             try:
@@ -237,20 +296,20 @@ def searchAdmin(self):
             except Exception as e:
                 print(e)
 
-def searchSysAdmin(self):
-        while True:
-            try:
-                sys_admin = 1
-                user_name = encrypt(input('Please enter system admin username: ').lower())
-                self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND system_admin = ?", (user_name, sys_admin))
-                data=self.cur.fetchall()
-                if len(data)==0:
-                    print('system admin not found.')
-                else:
-                    print('user found\n')
-                    return user_name
-            except Exception as e:
-                print(e)
+# def searchSysAdmin(self):
+#         while True:
+#             try:
+#                 sys_admin = 1
+#                 user_name = encrypt(input('Please enter system admin username: ').lower())
+#                 self.cur.execute("SELECT * FROM users WHERE lower(username) = ? AND system_admin = ?", (user_name, sys_admin))
+#                 data=self.cur.fetchall()
+#                 if len(data)==0:
+#                     print('system admin not found.')
+#                 else:
+#                     print('user found\n')
+#                     return user_name
+#             except Exception as e:
+#                 print(e)
 
 
 def changeFirstnameClient(self, client_id,username, date_time):
@@ -517,7 +576,9 @@ def deleteUsers(self, number, username, date_time):
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     if(number=='1'):
-        admin = searchAdmin(self).lower()
+        admin = searchSysAdmin(self).lower()
+        if(admin == "no entries found in the database"):
+            return
         try:
             self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (admin, ))
             self.conn.commit()
@@ -527,22 +588,13 @@ def deleteUsers(self, number, username, date_time):
         except Exception as e:
             print(e)
         return
-    elif(number=='2'):
-        sys_admin = searchSysAdmin(self).lower()
-        try:
-            self.cur.execute("DELETE FROM users WHERE lower(username) = ?", (sys_admin, ))
-            self.conn.commit()
-            print('User successfully Deleted.')
-            logActivity(self,username,date_time,'System admin deleted', 'username: '+ decrypt(sys_admin),'No','No')
-
-        except Exception as e:
-            print(e)
-        return
 
 
 
 def deleteAdvisor(self, username, date_time):
     user_name = searchAdvisor(self)
+    if(user_name=="no entries found in the database"):
+        return
     try:
         self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
         self.conn.commit()
@@ -553,10 +605,25 @@ def deleteAdvisor(self, username, date_time):
         print(e)
     return
 
+# def deletesystemadmin(self, username, date_time):
+#         user_name = searchsysadmin(self)
+#         try:
+#             self.cur.execute("DELETE FROM users WHERE username = ?", (user_name, ))
+#             self.conn.commit()
+#             print('User sucessfully Deleted.')
+#             logActivity(self,username,date_time,'Advisor  deleted', 'username: '+ decrypt(user_name),'No','No')
+
+#         except Exception as e:
+#             print(e)
+#         return
+
 def zip_files(self,username,date_time):
     list_files = ['DB_backup.sql']
         
     try:
+        if os.path.exists("backup.zip"):
+            os.remove("backup.zip")
+
         with zipfile.ZipFile('backup.zip', 'w') as zipF:
             for file in list_files:
                 zipF.write(file, compress_type=zipfile.ZIP_DEFLATED)
