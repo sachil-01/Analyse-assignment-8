@@ -20,6 +20,7 @@ now = datetime.now() # current date and time
 date_time = now.strftime("%m/%d/%Y, %H:%M:%S")
 notification = False
 message = ''
+loginAttempt = 1
 
 
 # User
@@ -85,7 +86,7 @@ class db:
             print(e)
 
     def login(self):
-        global user_type, username, db_menu
+        global user_type, username, db_menu, loginAttempt
         username = input("please enter username: ").lower()
         password = input("please enter password: ")
         
@@ -110,6 +111,12 @@ class db:
         loggedin_user = self.cur.fetchone()
         if not loggedin_user:  # An empty result evaluates to False.
             print("Invalid username or password.")
+            if(loginAttempt == 3):
+                print("Login failed for 3 attempts, exiting program")
+                logActivity(self,username, date_time,'Login blocked after 3 attempts','password: ' + password + ' is tried with with username: ' + username,"Yes","No" )
+                quit()
+            else:  
+                loginAttempt += 1
             logActivity(self,username, date_time,'Unsuccessful login','password: ' + password + ' is tried with with username: ' + username,"Yes","No" )
         else:
             logActivity(self, username, date_time, 'Logged in', '','No','No')
@@ -216,6 +223,13 @@ class db:
         timestamp = datetime.now()
         joinDate = timestamp.strftime("%d-%m-%Y, %H:%M:%S")
         client_id = generate_string_id()
+        while True:
+            self.cur.execute("SELECT * FROM client WHERE client_id = ?", ((encrypt(client_id)),))
+            data = self.cur.fetchall()
+            if(len(data)==0):
+                break
+            client_id = generate_string_id()
+        print("generating new id")
         entry = [client_id, firstname, lastname, address, zipcode, city, eMail, phoneNumber, joinDate]
 
         EncryptedData = [encrypt(i) for i in entry]

@@ -73,6 +73,6 @@ def decrypt(string):
     return message
 
 
-print(decrypt('MFQQTT%INY%NX%JJS%YJXY'))
+print(decrypt(':7787=<97:'))
 print(encrypt("Admin!23"))
 

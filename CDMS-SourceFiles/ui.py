@@ -21,7 +21,7 @@ class user_interface:
         print('_________________________________\n')        
         for option in self.menuitems:
             print('[' + str(option[0]) + ']' + ' ' + option[1])
-        if((self.user_type == 'Admin' or self.user_type == 'system_admin') and (self.notification == True)):
+        if((self.user_type == 'Super Administrator' or self.user_type == 'System Administrator') and (self.notification == True)):
             self.message = 'suspicious activity detected, please check your logs!!'.upper()
             print(self.message)
         self.message = ""

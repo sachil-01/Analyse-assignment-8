@@ -506,9 +506,10 @@ def add_new_users(self,number, username, date_time):
             isAdmin = 5
             isSysadmin = 6
         timestamp = datetime.now()
+        joinDate = timestamp.strftime("%d-%m-%Y, %H:%M:%S")
 
         testlist = [user_name,passw,firstname,lastname]
-        notEncrypted = [isAdmin,isSysadmin,isAdvisor,timestamp]
+        notEncrypted = [isAdmin,isSysadmin,isAdvisor,encrypt(joinDate)]
         EncryptedData = [encrypt(i) for i in testlist]
 
         self.conn = sqlite3.connect(self.db_name) 
