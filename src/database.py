@@ -197,7 +197,9 @@ class db:
         while True:
             firstname = input('Please enter firstname: ')
             if(firstname == ""):
-                print('fullname cannot be empty')
+                print('firstname cannot be empty')
+            elif(len(firstname) > 20):
+                print("firstname cannot be longer than 20 characters")
             else:
                 break
         print('firstname = ' + firstname)
@@ -205,12 +207,21 @@ class db:
             lastname = input('Please enter lastname: ')
             if(lastname == ""):
                 print('lastname cannot be empty')
+            elif(len(lastname) > 20):
+                print("lastname cannot be longer than 20 characters")
             else:
                 break
         print('lastname = ' + lastname)
         fullName = firstname + ' ' + lastname
 
-        address = input('Please enter address: ')
+        while True:
+            address = input('Please enter address: ')
+            if(address == ""):
+                print("Address cannot be empty")
+            elif(len(address) > 30):
+                print("Address cannot be longer than 30 characters")
+            else:
+                break
         print('address = ' + address)
         zipcode = validateZip()
         print('zipcode = ' + zipcode)
@@ -244,7 +255,7 @@ class db:
             if(len(data) == 0):
                 break
             client_id = generate_string_id()
-        print("generating new id")
+            print("generating new id")
         entry = [client_id, firstname, lastname, address,
                  zipcode, city, eMail, phoneNumber, joinDate]
 

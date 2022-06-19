@@ -309,7 +309,15 @@ def searchAdmin(self):
 
 def changeFirstnameClient(self, client_id,username, date_time):
 
-    newName = input('Please enter new firstname for client: ')
+    while True:
+        newName = input('Please enter new firstname for client: ')
+        if(newName == ""):
+            print("firstname cannot be empty")
+        elif(len(newName) > 20):
+            print("firstname cannot be longer than 20 characters")
+        else:
+            break
+    
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
@@ -326,7 +334,14 @@ def changeFirstnameClient(self, client_id,username, date_time):
 
 def changeLastnameClient(self, client_id,username, date_time):
 
-    newName = input('Please enter new lastname for client: ')
+    while True:
+        newName = input('Please enter new lastname for client: ')
+        if(newName == ""):
+            print("Lastname cannot be empty")
+        elif(len(newName) > 20):
+            print("Lastname cannot be longer than 20 characters")
+        else:
+            break
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
@@ -343,7 +358,14 @@ def changeLastnameClient(self, client_id,username, date_time):
 
 def changeAddress(self, client_id,username, date_time):
 
-    newAddress = input('Please enter new address for client: ')
+    while True:
+        newAddress = input('Please enter new address for client: ')
+        if(newAddress == ""):
+            print("Address cannot be empty")
+        elif(len(newAddress) > 30):
+            print("Address cannot be longer than 30 characters")
+        else:
+            break
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
 
@@ -472,12 +494,16 @@ def add_new_users(self,number, username, date_time):
                 firstname = input('enter firstname: ')
                 if(firstname == ""):
                     print('firstname cannot be empty! ')
+                elif(len(firstname) > 20):
+                    print("firstname cannot be longer than 20 characters")
                 else:
                     break
             while True:
                 lastname = input('enter lastname: ')
                 if(lastname == ""):
                     print('lastname cannot be empty! ')
+                elif(len(lastname) > 20):
+                    print("lastname cannot be longer than 20 characters")
                 else:
                     break
             isAdvisor = 5
@@ -489,12 +515,16 @@ def add_new_users(self,number, username, date_time):
                 firstname = input('enter firstname: ')
                 if(firstname == ""):
                     print('firstname cannot be empty! ')
+                elif(len(firstname) > 20):
+                    print("firstname cannot be longer than 20 characters")
                 else:
                     break
             while True:
                 lastname = input('enter lastname: ')
                 if(lastname == ""):
                     print('lastname cannot be empty! ')
+                elif(len(lastname) > 20):
+                    print("lastname cannot be longer than 20 characters")
                 else:
                     break
             isAdvisor = 4
@@ -540,7 +570,14 @@ def changePassword(self, advisor_name, username, date_time):
 
 def changeFirstname(self, advisor_name, username, date_time):
     print('Enter a new firstname:  ')
-    newName = input('firstname: ')
+    while True:
+        newName = input('Please enter new firstname for client: ')
+        if(newName == ""):
+            print("firstname cannot be empty")
+        elif(len(newName) > 20):
+            print("firstname cannot be longer than 20 characters")
+        else:
+            break
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
@@ -555,7 +592,14 @@ def changeFirstname(self, advisor_name, username, date_time):
 
 def changeLastname(self, advisor_name, username, date_time):
     print('Enter a new lastname: ')
-    newLastName = input('Lastname: ')
+    while True:
+        newLastName = input('Please enter new lastname for client: ')
+        if(newLastName == ""):
+            print("lastname cannot be empty")
+        elif(len(newLastName) > 20):
+            print("lastname cannot be longer than 20 characters")
+        else:
+            break
     self.conn = sqlite3.connect(self.db_name) 
     self.cur = self.conn.cursor()
     try:
