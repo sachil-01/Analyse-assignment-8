@@ -1,5 +1,5 @@
 from ui import *
-from database import * 
+from database import *
 
 main_heading = '''
 ██████████████████████████████████████████████
@@ -7,7 +7,6 @@ main_heading = '''
 █                 MY COMPANY                 █
 █                 ----------                 █
 █             Administration System          █
-
 █                                            █
 ██████████████████████████████████████████████
 
@@ -18,7 +17,8 @@ main_heading = '''
 Main Menu'''
 
 
-main_interface = user_interface( user_type, message, notification, main_heading, menueitems = main_menu)
+main_interface = user_interface(
+    user_type, message, notification, main_heading, menueitems=main_menu)
 
 if __name__ == "__main__":
     main_interface.run()
