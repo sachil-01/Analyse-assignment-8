@@ -19,12 +19,12 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 #         pattern = ("^(?=.*[a-z])(?=." +
 #                 "*[A-Z])(?=.*\\d)" +
 #                 "(?=.*[-+_!@#$%^&*., ?]).+$")
-        
-#         while True:  
+
+#         while True:
 #             password = input("password = : ")
 #             if(len(password) <= 8 or len(password) > 30):
 #                 print('Username MUST be between 8 and 30 characters')
-#             else: 
+#             else:
 #                 break
 #         while True:
 #             p = re.compile(pattern)
@@ -33,23 +33,22 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 #             else:
 #                 print('Must have at least 1 special characters, lowercase letter, uppercase letter and digit')
 #                 break
-    
 
 
 # print(validatePassword())
 
 # print(datetime.day())
-  
-  
+
+
 # def validateEmail():
 #         pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 #         while True:
 #             eMail = input('Please enter email address: ')
-            
+
 #             if(re.fullmatch(pattern, eMail)):
 #                 print("Email set to " + eMail)
 #                 return eMail
-    
+
 #             else:
 #                 print("Invalid Email")
 
@@ -64,6 +63,7 @@ def encrypt(string):
         message += chr(new_letter)
     return message
 
+
 def decrypt(string):
     key = 5
     message = ''
@@ -73,6 +73,4 @@ def decrypt(string):
     return message
 
 
-print(decrypt('xzujwfirns'))
-print(encrypt("test"))
-
+print(encrypt("5223287425"))
