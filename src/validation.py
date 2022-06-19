@@ -5,6 +5,7 @@ import sqlite3
 from datetime import datetime
 import zipfile
 import os
+import os.path
 import random
 
 
@@ -160,7 +161,7 @@ def searchClientnew(self):
             print('address = ' + decrypt(entry[3]))
             print('zipcode = ' + decrypt(entry[4]))
             print('city = ' + decrypt(entry[5]))
-            print('email = ' + decrypt(entry[7]))
+            print('email = ' + decrypt(entry[6]))
             print('phone number = ' + decrypt(entry[7]))
             print('\n')
             counter+=1
@@ -188,25 +189,22 @@ def searchAdvisor(self):
                     while True:
                         self.conn = sqlite3.connect(self.db_name) 
                         self.cur = self.conn.cursor()
-                        self.cur.execute("SELECT * FROM users WHERE advisor = 6")
+                        self.cur.execute("SELECT * FROM users WHERE advisor = 5")
                         data = self.cur.fetchall()
                         if(len(data)==0):
                             print("No advisors in system")
                             return "no entries found in the database"
                         search = encrypt(input('Please enter keywords to search: '))
-                        if(search == ""):
-                            print("Cannot be empty, try again.")
-                        else:
-                            break
+                        break
                     self.conn = sqlite3.connect(self.db_name) 
                     self.cur = self.conn.cursor()
                     counter = 1
-                    self.cur.execute("SELECT * FROM users WHERE advisor = 6")
+                    self.cur.execute("SELECT * FROM users WHERE advisor = 5")
                     data = self.cur.fetchall()
                     if(len(data)==0):
                         print("No advisors in system")
                         return
-                    self.cur.execute("SELECT * FROM users WHERE advisor = 6 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
+                    self.cur.execute("SELECT * FROM users WHERE advisor = 5 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
                     data = self.cur.fetchall()
                     if(len(data)==0):
                         print("No entries found, try again.")
@@ -240,20 +238,17 @@ def searchSysAdmin(self):
                     while True:
                         self.conn = sqlite3.connect(self.db_name) 
                         self.cur = self.conn.cursor()
-                        self.cur.execute("SELECT * FROM users WHERE system_admin = 6")
+                        self.cur.execute("SELECT * FROM users WHERE system_admin = 5")
                         data = self.cur.fetchall()
                         if(len(data)==0):
                             print("No system administrator in system")
                             return "no entries found in the database"
                         search = encrypt(input('Please enter keywords to search: '))
-                        if(search == ""):
-                            print("Cannot be empty, try again.")
-                        else:
-                            break
+                        break
                     self.conn = sqlite3.connect(self.db_name) 
                     self.cur = self.conn.cursor()
                     counter = 1
-                    self.cur.execute("SELECT * FROM users WHERE system_admin = 6 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
+                    self.cur.execute("SELECT * FROM users WHERE system_admin = 5 AND (username LIKE ? OR firstname LIKE ? OR lastname LIKE ?)", ('%'+search+'%','%'+search+'%','%'+search+'%'))
                     data = self.cur.fetchall()
                     if(len(data)==0):
                         print("No entries found, try again.")
@@ -485,9 +480,9 @@ def add_new_users(self,number, username, date_time):
                     print('lastname cannot be empty! ')
                 else:
                     break
-            isAdvisor = 6
-            isAdmin = 5
-            isSysadmin = 5
+            isAdvisor = 5
+            isAdmin = 4
+            isSysadmin = 4
 
         elif(number=='2'):
             while True:
@@ -502,9 +497,9 @@ def add_new_users(self,number, username, date_time):
                     print('lastname cannot be empty! ')
                 else:
                     break
-            isAdvisor = 5
-            isAdmin = 5
-            isSysadmin = 6
+            isAdvisor = 4
+            isAdmin = 4
+            isSysadmin = 5
         timestamp = datetime.now()
         joinDate = timestamp.strftime("%d-%m-%Y, %H:%M:%S")
 
@@ -520,7 +515,7 @@ def add_new_users(self,number, username, date_time):
             self.conn.commit()
             print('User sucessfully added.')
 
-            logActivity(self, username, date_time, 'new ' + 'Admin created' if isAdmin == 6 else ('Advisor created' if isAdvisor == 6 else 'System admin created') ,'username is ' + user_name, 'No', 'No')
+            logActivity(self, username, date_time, 'new ' + 'Admin created' if isAdmin == 5 else ('Advisor created' if isAdvisor == 5 else 'System admin created') ,'username is ' + user_name, 'No', 'No')
 
         except Exception as e:
             print(e)
@@ -639,8 +634,9 @@ def zip_files(self,username,date_time):
         print(e)
 
 
+
 def encrypt(string):
-    key = 5
+    key = 4
     message = ''
     for letter in string:
         new_letter = ord(letter) + key
@@ -648,7 +644,7 @@ def encrypt(string):
     return message
 
 def decrypt(string):
-    key = 5
+    key = 4
     message = ''
     for letter in string:
         new_letter = ord(letter) - key
@@ -719,9 +715,9 @@ def show_all_users(self):
         userCount = 1
         print('---List of Users---')
         for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
-            if(row[4] == 6):
+            if(row[4] == 5):
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Super Administrator')
-            elif(row[5]== 6):
+            elif(row[5]== 5):
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: System Administrator')
             else:
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Advisor')

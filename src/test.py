@@ -57,7 +57,7 @@ letters = string.ascii_lowercase + string.ascii_uppercase
 # validateEmail()
 
 def encrypt(string):
-    key = 5
+    key = 4
     message = ''
     for letter in string:
         new_letter = ord(letter) + key
@@ -73,6 +73,6 @@ def decrypt(string):
     return message
 
 
-print(decrypt(':7787=<97:'))
-print(encrypt("Admin!23"))
+print(decrypt('xzujwfirns'))
+print(encrypt("test"))
 

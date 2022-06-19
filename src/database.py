@@ -69,10 +69,10 @@ class db:
         try:
             self.cur.execute(tb_create)
             # add sample records to the db manually
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xzujwfirns', 'Firns&78', 'firns', '', 6, 5, 5,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('yjxy', 'yjxy' , '', '', 6, 5, 5,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('x~xyjrfirns', 'Firns&78' , '', '', 5, 6, 5,'2021-10-25 18:09:12.091144')")
-            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('fi{nxtw', 'Firns&78' , '', '', 5, 5, 6,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('wytivehqmr', 'Ehqmr765%', 'firns', '', 5, 4, 4,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xiwx', 'xiwx' , '', '', 5, 4, 4,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('w}wehqmr', 'Ehqmr%67' , '', '', 4, 5, 4,'2021-10-25 18:09:12.091144')")
+            self.cur.execute("INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('ehzmwsv', 'Ehqmr%67' , '', '', 4, 4, 5,'2021-10-25 18:09:12.091144')")
             self.conn.commit()
         except Exception as e: 
             print(e)
@@ -122,10 +122,10 @@ class db:
             logActivity(self, username, date_time, 'Logged in', '','No','No')
             self.loggedin = 1
             self.loggedin_user = username
-            if(loggedin_user[4] == 6):
+            if(loggedin_user[4] == 5):
                 user_type = 'Super Administrator'
                 db_menu = admin_menu
-            elif(loggedin_user[5] == 6):
+            elif(loggedin_user[5] == 5):
                 user_type = 'System Administrator'
                 db_menu = sysadmin_menu
             else:
@@ -169,9 +169,9 @@ class db:
         userCount = 1
         print('---List of Users---')
         for row in self.cur.execute('SELECT * FROM users ORDER BY admin, system_admin, advisor'):
-            if(row[4] == 6):
+            if(row[4] == 5):
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Super Administrator')
-            elif(row[5]== 6):
+            elif(row[5]== 5):
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: System Administrator')
             else:
                 print('User ' + str(userCount) + ' = ' + decrypt(row[0]) + ' | Role: Advisor')
@@ -278,7 +278,7 @@ class db:
         clientCount = 1
         print('---List of Clients---')
         for row in self.cur.execute('SELECT * FROM client'):
-            print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]) + decrypt(row[2]))
+            print('Client ' + str(clientCount) + ' = ' + decrypt(row[1]) + " " + decrypt(row[2]))
             clientCount += 1
 
         clientNumber = 0
@@ -411,35 +411,58 @@ class db:
 
 
     def delete_client(self):
-        self.conn = sqlite3.connect(self.db_name) 
-        self.cur = self.conn.cursor()
-        print('--Deleting a client---\n')
-        client = searchClient(self)
-        try:
-            self.cur.execute("SELECT * FROM client")
-            data=self.cur.fetchall()
-            if len(data)==0:
-                print('No clients in the system')
-                return
-
-            while True:
-                try:
-                    clientDelete = input("Please enter Client ID to delete: ")
-                    if(isinstance(int(clientDelete), int) and int(clientDelete) >= 1 and int(clientDelete) <= len(data)):
-                        clientNumber = int(clientDelete)
+            try:
+                while True:
+                    while True:
+                        self.conn = sqlite3.connect(self.db_name) 
+                        self.cur = self.conn.cursor()
+                        self.cur.execute("SELECT * FROM client")
+                        data = self.cur.fetchall()
+                        if(len(data)==0):
+                            print("No clients in system")
+                            return
+                        search = encrypt(input('Please enter keywords to search: '))
                         break
+                    self.conn = sqlite3.connect(self.db_name) 
+                    self.cur = self.conn.cursor()
+                    counter = 1
+                    self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
+                    data = self.cur.fetchall()
+                    if(len(data)==0):
+                        print("No entries found, try again.")
                     else:
+                        break
+                for entry in data:
+                    print(f'___Client {counter}___\n')
+                    print('client_id = ' + decrypt(entry[0]))
+                    print('firstname = ' + decrypt(entry[1]))
+                    print('lastname = ' + decrypt(entry[2]))
+                    print('address = ' + decrypt(entry[3]))
+                    print('zipcode = ' + decrypt(entry[4]))
+                    print('city = ' + decrypt(entry[5]))
+                    print('email = ' + decrypt(entry[6]))
+                    print('phone number = ' + decrypt(entry[7]))
+                    print('\n')
+                    counter+=1
+                clientNumber = 0
+                while True:
+                    try:
+                        SelectedClientNumber = input("Please enter client number : ")
+                        if(isinstance(int(SelectedClientNumber), int) and int(SelectedClientNumber) >= 1 and int(SelectedClientNumber) <= len(data)):
+                            clientNumber = int(SelectedClientNumber)
+                            break
+                        else:
+                            print(f"Enter a number between 1 - {len(data)} ")
+                    except Exception as e:
                         print(f"Enter a number between 1 - {len(data)} ")
-                except Exception as e:
-                    print(f"Enter a number between 1 - {len(data)} ")
-            client_id = data[clientNumber-1][0]
-            self.cur.execute("DELETE FROM client WHERE client_id = ?", (client_id, ))
-            self.conn.commit()
-            print('Client sucessfully Deleted.')
-            logActivity(self, username,date_time,'Client deleted','Client '+(decrypt(data[clientNumber-1][1])) + ' has been deleted','No','No')
+                client =  data[clientNumber-1][0]
+                self.cur.execute("DELETE FROM client WHERE client_id = ?", (client, ))
+                self.conn.commit()
+                print('Client successfully Deleted.')
+                logActivity(self,username,date_time,'Client deleted', 'username: '+ decrypt(data[clientNumber-1][1]),'No','No')
 
-        except Exception as e:
-            print(e)
+            except Exception as e:
+                print(e)
 
 
 
@@ -701,6 +724,33 @@ class db:
         except Exception as e:
             print(e)
     
+    def restore_backup(self):
+        try:
+            path_to_file = "backup.zip"
+            cwd = os.getcwd()
+
+            if(os.path.exists(path_to_file)):
+                with zipfile.ZipFile(path_to_file, 'r') as zip_ref:
+                    zip_ref.extractall(cwd)
+                
+                self.conn = sqlite3.connect(self.db_name)
+                self.cur.execute("DROP TABLE client")
+                self.cur.execute("DROP TABLE logging")
+                self.cur.execute("DROP TABLE users")
+                f = open('DB_backup.sql','r', encoding='cp932', errors='ignore')
+                sql = f.read()
+                self.cur.executescript(sql)
+                f.close()
+                if(os.path.exists('DB_backup.sql')):
+                    os.remove('DB_backup.sql')
+                print("Backup has been restored")
+            else:
+                print("No backup has been made")
+                return
+        except Exception as e:
+            print(e)
+    
+    
     def showLogs(self):
         self.conn = sqlite3.connect(self.db_name) 
         self.cur = self.conn.cursor()   
@@ -743,11 +793,11 @@ client = db(company_db_name, client_tb_name, users_tb_name)
 main_menu = [[1, 'login', client.login ], [0, 'Exit', client.close]]
 admin_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'show all users', client.show_all_users], \
             [3, 'add new client', client.add_new_client], [4, 'add new user', client.add_new_user], \
-            [5, 'make a user "admin"', client.make_a_user_admin],[6, 'delete a user', client.delete_user], \
-            [7, 'delete a client', client.delete_client],[8,'delete client record', client.delete_client_record], \
-            [9, 'change password', client.change_password],[10, 'reset advisor password', client.reset_advisor_password],[11, 'reset admin password', client.reset_admin_password],[12, 'update client info', client.update_client_info], \
-            [13,'update advisor info', client.update_advisor_info],[14,'update system admin info', client.update_systemadmin_info],[15, 'search client info',client.get_client_info],[16,'backup database', client.create_db_backup],
-            [17,'show logs',client.showLogs], [0, 'logout', client.logout]]
+            [5, 'delete a user', client.delete_user], \
+            [6, 'delete a client', client.delete_client],[7,'delete client record', client.delete_client_record], \
+            [8, 'change password', client.change_password],[9, 'reset advisor password', client.reset_advisor_password],[10, 'reset system admin password', client.reset_admin_password],[11, 'update client info', client.update_client_info], \
+            [12,'update advisor info', client.update_advisor_info],[13,'update system admin info', client.update_systemadmin_info],[14, 'search client info',client.get_client_info],[15,'backup database', client.create_db_backup],
+            [16,'restore database',client.restore_backup],[17,'show logs',client.showLogs], [0, 'logout', client.logout]]
 
 
 advisor_menu = [ [1, 'show all clients', client.show_all_clients], [2, 'change password', client.change_password], \
@@ -758,5 +808,5 @@ sysadmin_menu = [ [1, 'show all clients', client.show_all_clients],[2, 'show all
             [4, 'add new client', client.add_new_client],[5, 'add new advisor', client.add_new_user], [6, 'search client info', client.get_client_info], \
             [7, 'update client info', client.update_client_info],[8,'update advisor info', client.update_advisor_info],[9, 'reset advisor password', client.reset_advisor_password],
             [10, 'delete a client', client.delete_client],[11, 'delete a advisor', client.deleteAdvisor],[12,'delete client record', client.delete_client_record],[13,'backup database', client.create_db_backup], 
-            [14,'Show logs',client.showLogs],[0, 'logout', client.logout]]
+            [14,'restore database',client.restore_backup],[15,'Show logs',client.showLogs],[0, 'logout', client.logout]]
 
