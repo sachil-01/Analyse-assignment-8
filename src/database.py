@@ -61,7 +61,7 @@ class db:
             self.cur.execute(tb_create)
             # add sample records to the db manually
             self.cur.execute(
-                "INSERT INTO client (client_id ,firstname, lastname, address, zipcode, city, email, phone_number, joinDate) VALUES ('96676<;869', 'Pmpm', 'Erhivwsr', 'fekmnrlsj$58', '7555OE', 'Wglmiheq', 'xiwxDkqemp2gsq', ';;6<7=<6', '2021-10-25 18:09:12.091144' )")
+                "INSERT INTO client (client_id ,firstname, lastname, address, zipcode, city, email, phone_number, joinDate) VALUES ('96676<;869', 'Pmpm', 'Erhivwsr', 'fekmnrlsj$58', '7555OE', 'Wglmiheq', 'xiwxDkqemp2gsq', ';;6<7=<6', '6465154169$5<>4=>5624=5588' )")
             # self.cur.execute("INSERT INTO client (fullname, address, zipcode, city, email, phone_number) VALUES ('Anne Banwarth', 'bagijnhof 14', '3111KA', 'Schiedam', 'test@gmail.com', '0677283982')")
             self.conn.commit()
         except Exception as e:
@@ -73,13 +73,13 @@ class db:
             self.cur.execute(tb_create)
             # add sample records to the db manually
             self.cur.execute(
-                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('wytivehqmr', 'Ehqmr765%', 'firns', '', 5, 4, 4,'2021-10-25 18:09:12.091144')")
+                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('wytivehqmr', 'Ehqmr765%', 'firns', '', 5, 4, 4,'6465154169$5<>4=>5624=5588')")
             self.cur.execute(
-                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xiwx', 'xiwx' , '', '', 5, 4, 4,'2021-10-25 18:09:12.091144')")
+                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xiwx', 'xiwx' , '', '', 5, 4, 4,'6465154169$5<>4=>5624=5588')")
             self.cur.execute(
-                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('w}wehqmr', 'Ehqmr%67' , '', '', 4, 5, 4,'2021-10-25 18:09:12.091144')")
+                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('w}wehqmr', 'Ehqmr%67' , '', '', 4, 5, 4,'6465154169$5<>4=>5624=5588')")
             self.cur.execute(
-                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('ehzmwsv', 'Ehqmr%67' , '', '', 4, 4, 5,'2021-10-25 18:09:12.091144')")
+                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('ehzmwsv', 'Ehqmr%67' , '', '', 4, 4, 5,'6465154169$5<>4=>5624=5588')")
             self.conn.commit()
         except Exception as e:
             print(e)
