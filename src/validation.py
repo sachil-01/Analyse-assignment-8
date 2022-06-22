@@ -142,10 +142,7 @@ def searchClientnew(self):
                     print('No clients in the system')
                     return
                 search = encrypt(input('Please enter keywords to search: '))
-                if(search == ""):
-                    print("Cannot be empty, try again.")
-                else:
-                    break
+                break
             counter = 1
             self.cur.execute("SELECT * FROM client WHERE client_id LIKE ? OR firstname LIKE ? OR lastname LIKE ? OR address LIKE ? OR email LIKE ? OR phone_number LIKE ?", ('%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%','%'+search+'%'))
             data = self.cur.fetchall()

@@ -12,8 +12,6 @@ main_heading = '''
 
 
 
-
-
 Main Menu'''
 
 

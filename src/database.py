@@ -74,8 +74,8 @@ class db:
             # add sample records to the db manually
             self.cur.execute(
                 "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('wytivehqmr', 'Ehqmr765%', 'firns', '', 5, 4, 4,'6465154169$5<>4=>5624=5588')")
-            self.cur.execute(
-                "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xiwx', 'xiwx' , '', '', 5, 4, 4,'6465154169$5<>4=>5624=5588')")
+            # self.cur.execute(
+            #     "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('xiwx', 'xiwx' , '', '', 5, 4, 4,'6465154169$5<>4=>5624=5588')")
             self.cur.execute(
                 "INSERT INTO users (username, password, firstname, lastname, admin, system_admin, advisor, joinDate) VALUES ('w}wehqmr', 'Ehqmr%67' , '', '', 4, 5, 4,'6465154169$5<>4=>5624=5588')")
             self.cur.execute(
@@ -125,6 +125,10 @@ class db:
                 logActivity(self, username, date_time, 'Login blocked after 3 attempts',
                             'password: ' + password + ' is tried with with username: ' + username, "Yes", "No")
                 quit()
+            elif loginAttempt == 1:
+                loginAttempt += 1
+                logActivity(self, username, date_time, 'Unsuccessful login', 'password: ' +
+                        password + ' is tried with with username: ' + username, "No", "No")
             else:
                 loginAttempt += 1
             logActivity(self, username, date_time, 'Unsuccessful login', 'password: ' +
